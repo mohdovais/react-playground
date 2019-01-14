@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <link rel="stylesheet" href="dist/app.css" />
+        <script>
+            const process = {
+                env: {
+                    NODE_ENV: 'production',
+                },
+            };
+        </script>
+        <title>Document</title>
+    </head>
+    <body>
+        <div id="root"></div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/preact/8.4.2/preact.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/preact-compat/3.18.4/preact-compat.min.js"></script>
+        <script>
+            const React = preactCompat;
+            const ReactDOM = preactCompat;
+
+            (function(React) {
+                React.memo = function(target) {
+                    if (target.prototype && target.prototype.render) {
+                        target.prototype.shouldComponentUpdate = shouldComponentUpdate;
+                    } else {
+                        return (
+                            target.__scuWrap ||
+                            (target.__scuWrap = wrap(target))
+                        );
+                    }
+                };
+
+                function wrap(fn) {
+                    class Wrap extends Wrapper {}
+                    Wrap.prototype.renderChild = fn;
+                    return Wrap;
+                }
+
+                class Wrapper extends React.Component {
+                    shouldComponentUpdate(props) {
+                        return shallowDiffers(props, this.props);
+                    }
+                    render(props, state, context) {
+                        return this.renderChild(props, context);
+                    }
+                }
+
+                function shouldComponentUpdate(props, state) {
+                    return (
+                        shallowDiffers(props, this.props) ||
+                        shallowDiffers(state, this.state)
+                    );
+                }
+
+                function shallowDiffers(a, b) {
+                    for (let key in a) if (a[key] !== b[key]) return true;
+                    for (let key in b) if (!(key in a)) return true;
+                    return false;
+                }
+            })(React);
+        </script>
+        <script src="dist/app.js"></script>
+    </body>
+</html>
