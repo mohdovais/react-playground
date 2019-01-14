@@ -1,6 +1,5 @@
 import ReactDOM from 'react-dom';
 import React from 'react';
-//import PieChart from './svg/PieChart.jsx';
 import PieChart from './component/chart/pie/PieChart.jsx';
 import { MATH } from './util/math.js';
 

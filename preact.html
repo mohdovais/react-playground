@@ -22,7 +22,7 @@
             const React = preactCompat;
             const ReactDOM = preactCompat;
 
-            (function(React) {
+            (function() {
                 React.memo = function(target) {
                     if (target.prototype && target.prototype.render) {
                         target.prototype.shouldComponentUpdate = shouldComponentUpdate;
@@ -61,7 +61,7 @@
                     for (let key in b) if (!(key in a)) return true;
                     return false;
                 }
-            })(React);
+            })();
         </script>
         <script src="dist/app.js"></script>
     </body>
