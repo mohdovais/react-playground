@@ -1,5 +1,19 @@
-import { getRandomColor } from './../../../util/color.js';
-import { MATH, sum } from './../../../util/math.js';
+import { getRandomColor } from '../../../util/color.js';
+import { MATH, sum } from '../../../util/math.js';
+
+export function getAngles(data) {
+    const total = sum.apply(null, data);
+    let startAngle = 0;
+
+    return data.map(value => {
+        return {
+            value,
+            startAngle,
+            endAngle: (startAngle += (value * 360) / total),
+            color: getRandomColor(),
+        };
+    });
+}
 
 export function calculateAngles(data) {
     const total = sum.apply(null, data);
@@ -32,7 +46,7 @@ export function getInitialState(data) {
 }
 
 export function getNextAnimationState(state) {
-    const animAngle = state.animAngle * 1.2;
+    const animAngle = state.animAngle * 1.5;
     let _animStartAngle = 0;
 
     return Object.assign({}, state, {

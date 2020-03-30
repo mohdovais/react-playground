@@ -1,4 +1,4 @@
-import { MATH, round, radian } from './../../../util/math.js';
+import { MATH, round, radian } from '../../../util/math.js';
 
 /**
  *

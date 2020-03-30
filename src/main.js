@@ -1,20 +1,24 @@
 import ReactDOM from 'react-dom';
 import React from 'react';
-import PieChart from './component/chart/pie/PieChart.jsx';
-import { MATH } from './util/math.js';
+import { Application } from './Application';
 
-function random(a, b) {
-    return MATH.round(a + MATH.random() * (b - a));
+/**
+ *
+ * @param {Element} container
+ */
+function render(container) {
+    ReactDOM.render(<Application />, container);
 }
 
-ReactDOM.render(
-    <PieChart
-        data={new Array(random(1, 15))
-            .join(',')
-            .split(',')
-            .map(() => random(0, 100))}
-        dimension={1024}
-        donut={0.33}
-    />,
-    document.getElementById('root')
-);
+/**
+ *
+ * @param {Element} container
+ */
+function unmount(container) {
+    ReactDOM.unmountComponentAtNode(container);
+}
+
+export default {
+    render,
+    unmount,
+};

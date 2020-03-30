@@ -23,17 +23,29 @@ export default class PieChart extends React.PureComponent {
         this.animate(0);
     }
 
+    static getDerivedStateFromProps(props, state) {
+        // Any time the current user changes,
+        // Reset any parts of state that are tied to that user.
+        // In this simple example, that's just the email.
+        if (props.userID !== state.prevPropsUserID) {
+            return {
+                prevPropsUserID: props.userID,
+                email: props.defaultEmail,
+            };
+        }
+        return null;
+    }
+
     render() {
-        const { dimension, donut } = this.props;
-        const { data, discColor } = this.state;
+        const {dimension, donut} = this.props;
+        const {data, discColor} = this.state;
         const radius = dimension / 2;
 
         return (
             <svg
                 width={dimension}
                 height={dimension}
-                viewBox={`-${radius} -${radius} ${dimension} ${dimension}`}
-            >
+                viewBox={`-${radius} -${radius} ${dimension} ${dimension}`}>
                 {data.map(item => (
                     <DonutPie
                         label={'value is ' + item.value}
