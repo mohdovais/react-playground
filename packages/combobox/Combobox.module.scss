@@ -1,8 +1,23 @@
-.combobox_wrapper {
+.combobox {
     display: inline-block;
+}
+
+.input_wrapper {
     position: relative;
 }
 
-.combobox {
-    color: red;
+.input {
+    flex: 1;
+    height: 24px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+}
+
+.trigger {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 24px;
+    height: 24px;
+    border-left: 1px solid #ccc;
 }

@@ -1,11 +1,64 @@
 .Labelable-module_labelable__1AXtv {
   display: inline-block;
 }
-.Combobox-module_combobox_wrapper__1weuj {
-  display: inline-block;
-  position: relative;
+.listbox-module_listbox__1kBCU {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.listbox-module_listbox__1kBCU:not(:empty){
+    border: 1px solid red;
+}
+
+.listbox-module_option__3ponE {
+    cursor: pointer;
+    position: relative;
+    padding: 8px;
+}
+
+.listbox-module_option__3ponE + .listbox-module_option__3ponE {
+    border-top: 1px solid red;
+}
+
+.listbox-module_option__3ponE:hover::after {
+    content: ' ';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.listbox-module_focus__YG_HO {
+    background-color: blueviolet;
+}
+
+.listbox-module_selected__4zSUv {
+    box-shadow: 0 0 2px 2px red;;
 }
 
 .Combobox-module_combobox__3xJ_Z {
-  color: red;
+  display: inline-block;
+}
+
+.Combobox-module_input_wrapper__3QtGA {
+  position: relative;
+}
+
+.Combobox-module_input__2eqaC {
+  flex: 1;
+  height: 24px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+}
+
+.Combobox-module_trigger__30ep3 {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  border-left: 1px solid #ccc;
 }

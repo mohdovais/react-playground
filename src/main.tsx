@@ -2,19 +2,11 @@ import ReactDOM from 'react-dom';
 import React from 'react';
 import { Application } from './Application';
 
-/**
- *
- * @param {Element} container
- */
-function render(container) {
+function render(container: HTMLDivElement) {
     ReactDOM.render(<Application />, container);
 }
 
-/**
- *
- * @param {Element} container
- */
-function unmount(container) {
+function unmount(container: HTMLDivElement) {
     ReactDOM.unmountComponentAtNode(container);
 }
 

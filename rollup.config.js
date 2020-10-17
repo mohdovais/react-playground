@@ -1,23 +1,23 @@
 /* global process */
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
-import babel from 'rollup-plugin-babel';
-import replace from '@rollup/plugin-replace';
+//import replace from '@rollup/plugin-replace';
 import postcss from 'rollup-plugin-postcss';
 import { terser } from 'rollup-plugin-terser';
 import autoprefixer from 'autoprefixer';
+import esbuild from 'rollup-plugin-esbuild';
 
 const production = !process.env.ROLLUP_WATCH;
 const environment = production ? 'production' : 'development';
 
 export default [
     {
-        input: 'src/main.js',
+        input: 'src/main.tsx',
         output: {
             file: 'dist/app.umd.js',
             format: 'umd',
             name: 'app',
-            sourcemap: production,
+            sourcemap: true,
             globals: {
                 react: 'React',
                 'react-dom': 'ReactDOM',
@@ -37,13 +37,13 @@ export default [
                 browser: true,
                 extensions: ['.mjs', '.js', '.jsx', '.json'],
             }),
+            /*
             replace({
                 'process.env.NODE_ENV': JSON.stringify(environment),
             }),
-            babel({
-                exclude: 'node_modules/**', // only transpile our source code
-            }),
+            */
             commonjs(),
+            esbuild(),
             production && terser(),
         ],
     },
