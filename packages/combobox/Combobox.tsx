@@ -19,7 +19,7 @@ export interface ComboboxProps<T> {
     queryMode: 'local';
     data: T[];
     onChange?: (selection: T) => void;
-}
+}git 
 
 export function Combobox<T>(props: ComboboxProps<T>) {
     const { data, displayField = 'text', onChange } = props;
