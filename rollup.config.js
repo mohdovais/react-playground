@@ -43,7 +43,7 @@ export default [
             }),
             */
             commonjs(),
-            esbuild(),
+            esbuild({ target: 'es2015' }),
             production && terser(),
         ],
     },

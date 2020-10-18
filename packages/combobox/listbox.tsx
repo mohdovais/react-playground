@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { ensureArray } from '../utils/array';
 import { hasOwnProperty } from '../utils/object';
 import {
@@ -19,7 +19,7 @@ export interface ListBoxProps<T> {
     expanded: boolean;
 }
 
-export function ListBox<T>(props: ListBoxProps<T>) {
+function ListBox<T>(props: ListBoxProps<T>) {
     const {
         id,
         className = '',
@@ -53,3 +53,5 @@ export function ListBox<T>(props: ListBoxProps<T>) {
         </ul>
     );
 }
+
+export default memo(ListBox);

@@ -21,10 +21,10 @@
       return Object.prototype.hasOwnProperty.call(object, property);
     }
 
-    var listbox = "listbox-module_listbox__1kBCU";
-    var option = "listbox-module_option__3ponE";
-    var focus = "listbox-module_focus__YG_HO";
-    var selected = "listbox-module_selected__4zSUv";
+    var listbox = "listbox-module_listbox__16qJO";
+    var option = "listbox-module_option__3a9MH";
+    var focus = "listbox-module_focus__m8cIN";
+    var selected = "listbox-module_selected__2AANR";
 
     function ListBox(props) {
       const {
@@ -49,10 +49,124 @@
         onClick: () => onSelect(item)
       }, hasOwnProperty(item, displayField) ? item[displayField] : null)) : null);
     }
+    var ListBox$1 = React.memo(ListBox);
 
     function useRandomId(prefix = "") {
       const id = React.useState(() => prefix + Math.round(Math.random() + Math.random() * 1e17).toString(32));
       return id[0];
+    }
+
+    const assign = Object.assign;
+    const ACTION_TYPE_COLLAPSE = 0;
+    const ACTION_TYPE_EXPAND = 1;
+    const ACTION_TYPE_TOGGLE = 2;
+    const ACTION_TYPE_KEY_ARROW_DOWN = 3;
+    const ACTION_TYPE_KEY_ARROW_UP = 4;
+    const ACTION_TYPE_KEY_ENTER = 5;
+    const ACTION_TYPE_SELECT = 6;
+    const ACTION_TYPE_SET_DATA = 7;
+    const initialState = {
+      expanded: false,
+      focusIndex: -1,
+      selection: void 0,
+      data: [],
+      range: []
+    };
+    function comboboxReducer(state, action) {
+      switch (action.type) {
+        case ACTION_TYPE_COLLAPSE:
+          return assign({}, state, {
+            expanded: false,
+            focusIndex: -1
+          });
+        case ACTION_TYPE_EXPAND:
+          return assign({}, state, {
+            expanded: true
+          });
+        case ACTION_TYPE_TOGGLE:
+          return assign({}, state, {
+            expanded: !state.expanded
+          });
+        case ACTION_TYPE_KEY_ARROW_DOWN: {
+          let count = state.range.length;
+          return assign({}, state, {
+            expanded: true,
+            focusIndex: count === 0 ? -1 : (state.focusIndex + 1) % count
+          });
+        }
+        case ACTION_TYPE_KEY_ARROW_UP: {
+          let count = state.range.length;
+          let index = state.focusIndex === -1 ? count : state.focusIndex;
+          return assign({}, state, {
+            expanded: true,
+            focusIndex: count === 0 ? -1 : (count + index - 1) % count
+          });
+        }
+        case ACTION_TYPE_KEY_ENTER:
+          if (state.focusIndex !== -1) {
+            return assign({}, state, {
+              expanded: false,
+              selection: state.range[state.focusIndex]
+            });
+          }
+          break;
+        case ACTION_TYPE_SELECT:
+          return assign({}, state, {
+            expanded: false,
+            selection: action.selection
+          });
+        case ACTION_TYPE_SET_DATA: {
+          let data = action.data;
+          return assign({}, state, {
+            data,
+            range: data
+          });
+        }
+      }
+      return state;
+    }
+    function useComboboxActions(dispatch) {
+      const expand = React.useCallback(function() {
+        dispatch({type: ACTION_TYPE_EXPAND});
+      }, [dispatch]);
+      const collapse = React.useCallback(function() {
+        dispatch({type: ACTION_TYPE_COLLAPSE});
+      }, [dispatch]);
+      const toggle = React.useCallback(function() {
+        dispatch({type: ACTION_TYPE_TOGGLE});
+      }, [dispatch]);
+      const select = React.useCallback(function(selection) {
+        dispatch({
+          type: ACTION_TYPE_SELECT,
+          selection
+        });
+      }, [dispatch]);
+      const handleKeys = React.useCallback(function(event) {
+        switch (event.key) {
+          case "ArrowDown": {
+            dispatch({type: ACTION_TYPE_KEY_ARROW_DOWN});
+            break;
+          }
+          case "ArrowUp": {
+            dispatch({type: ACTION_TYPE_KEY_ARROW_UP});
+            break;
+          }
+          case "Escape":
+            collapse();
+            break;
+          case "Enter":
+            dispatch({type: ACTION_TYPE_KEY_ENTER});
+            break;
+        }
+      }, [dispatch]);
+      const handleInput = React.useCallback(function(event) {
+        const inputEl = event.target;
+        const text = inputEl.value;
+      }, [dispatch]);
+      const setData = React.useCallback(function(data) {
+        dispatch({type: ACTION_TYPE_SET_DATA, data});
+      }, [dispatch]);
+      return {expand, collapse, toggle, select, handleKeys, handleInput, setData};
     }
 
     var combobox = "Combobox-module_combobox__3xJ_Z";
@@ -65,53 +179,38 @@
       const inputRef = React.useRef(null);
       const id = useRandomId("combobox-");
       const listboxId = id + "-listbox";
-      const [expanded, setExpanded] = React.useState(false);
-      const [focusIndex, setFocusIndex] = React.useState(-1);
-      const [selection, setSelection] = React.useState();
-      const collapse = React.useCallback(() => {
-        setExpanded(false);
-        setFocusIndex(-1);
-      }, []);
-      const handleKeyDown = React.useCallback(function(event) {
-        const count = data.length;
-        switch (event.key) {
-          case "ArrowDown": {
-            setExpanded(true);
-            setFocusIndex((focusIndex + 1) % count);
-            break;
-          }
-          case "ArrowUp": {
-            setExpanded(true);
-            let index = focusIndex === -1 ? count : focusIndex;
-            setFocusIndex((count + index - 1) % count);
-            break;
-          }
-          case "Escape":
-            collapse();
-            break;
-          case "Enter":
-            if (focusIndex !== -1) {
-              handleSelect(data[focusIndex]);
-            }
-        }
-      }, [data, focusIndex]);
+      const [state, dispatch] = React.useReducer(comboboxReducer, initialState);
+      const {expanded, selection, range, focusIndex} = state;
+      const {
+        expand,
+        collapse,
+        toggle,
+        select,
+        handleKeys,
+        handleInput,
+        setData
+      } = useComboboxActions(dispatch);
       const handleTriggerClick = React.useCallback(function() {
-        setExpanded(!expanded);
-        if (inputRef.current) {
-          inputRef.current.focus();
+        let el = inputRef.current;
+        if (el) {
+          el.focus();
         }
-      }, [expanded, inputRef]);
-      const handleSelect = React.useCallback(function(selection2) {
-        setExpanded(false);
-        setSelection(selection2);
-        typeof onChange === "function" && onChange(selection2);
-      }, []);
+        toggle();
+      }, [inputRef]);
+      React.useEffect(() => {
+        setData(data);
+      }, [data]);
+      React.useEffect(() => {
+        if (selection && inputRef.current) {
+          inputRef.current.value = selection[displayField];
+        }
+      }, [selection, displayField, inputRef]);
       return /* @__PURE__ */ React__default['default'].createElement("div", {
         className: combobox
       }, /* @__PURE__ */ React__default['default'].createElement("div", {
         className: input_wrapper,
         role: "combobox",
-        "aria-expanded": "false",
+        "aria-expanded": expanded ? "true" : "false",
         "aria-owns": listboxId,
         "aria-haspopup": "listbox"
       }, /* @__PURE__ */ React__default['default'].createElement("input", {
@@ -119,8 +218,8 @@
         "aria-autocomplete": "both",
         "aria-controls": listboxId,
         "aria-activedescendant": focusIndex === -1 ? "" : id + "-option-" + focusIndex,
-        onKeyDown: handleKeyDown,
-        onBlur: () => collapse(),
+        onKeyDown: handleKeys,
+        onInput: handleInput,
         className: input,
         ref: inputRef
       }), /* @__PURE__ */ React__default['default'].createElement("div", {
@@ -129,13 +228,13 @@
         role: "button",
         "aria-label": "Show options",
         onClick: handleTriggerClick
-      }, "▼")), /* @__PURE__ */ React__default['default'].createElement(ListBox, {
+      }, "▼")), /* @__PURE__ */ React__default['default'].createElement(ListBox$1, {
         id: listboxId,
-        data,
+        data: range,
         displayField,
         focusIndex,
         expanded,
-        onSelect: handleSelect,
+        onSelect: select,
         selected: selection
       }));
     }

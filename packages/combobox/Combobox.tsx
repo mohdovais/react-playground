@@ -1,6 +1,11 @@
-import React, { useCallback, useState, useRef } from 'react';
-import ListBox from '../listbox';
+import React, { useCallback, useRef, useReducer, useEffect } from 'react';
+import ListBox from './listbox';
 import { useRandomId } from '../hook/use-random-id';
+import {
+    comboboxReducer,
+    initialState,
+    useComboboxActions,
+} from './combobox.store';
 import {
     combobox as $combobox,
     input_wrapper as $input_wrapper,
@@ -16,67 +21,50 @@ export interface ComboboxProps<T> {
     onChange?: (selection: T) => void;
 }
 
-export function Combobox<T = undefined>(props: ComboboxProps<T>) {
+export function Combobox<T>(props: ComboboxProps<T>) {
     const { data, displayField = 'text', onChange } = props;
     const inputRef = useRef<HTMLInputElement>(null);
     const id = useRandomId('combobox-');
     const listboxId = id + '-listbox';
-    const [expanded, setExpanded] = useState<boolean>(false);
-    const [focusIndex, setFocusIndex] = useState<number>(-1);
-    const [selection, setSelection] = useState<T>();
-    const collapse = useCallback(() => {
-        setExpanded(false);
-        setFocusIndex(-1);
-    }, []);
-    const handleKeyDown = useCallback(
-        function (event: React.KeyboardEvent<HTMLInputElement>) {
-            const count = data.length;
-            switch (event.key) {
-                case 'ArrowDown': {
-                    setExpanded(true);
-                    setFocusIndex((focusIndex + 1) % count);
-                    break;
-                }
-                case 'ArrowUp': {
-                    setExpanded(true);
-                    let index = focusIndex === -1 ? count : focusIndex;
-                    setFocusIndex((count + index - 1) % count);
-                    break;
-                }
-                case 'Escape':
-                    collapse();
-                    break;
-                case 'Enter':
-                    if (focusIndex !== -1) {
-                        handleSelect(data[focusIndex]);
-                    }
-            }
-        },
-        [data, focusIndex]
-    );
+    const [state, dispatch] = useReducer(comboboxReducer, initialState);
+    const { expanded, selection, range, focusIndex } = state;
+    const {
+        expand,
+        collapse,
+        toggle,
+        select,
+        handleKeys,
+        handleInput,
+        setData,
+    } = useComboboxActions(dispatch);
 
     const handleTriggerClick = useCallback(
         function () {
-            setExpanded(!expanded);
-            if (inputRef.current) {
-                inputRef.current.focus();
+            let el = inputRef.current;
+            if (el) {
+                el.focus();
             }
+            toggle();
         },
-        [expanded, inputRef]
+        [inputRef]
     );
 
-    const handleSelect = useCallback(function (selection: T) {
-        setExpanded(false);
-        setSelection(selection);
-        typeof onChange === 'function' && onChange(selection);
-    }, []);
+    useEffect(() => {
+        setData(data);
+    }, [data]);
+
+    useEffect(() => {
+        if(selection && inputRef.current){
+            inputRef.current.value = selection[displayField];
+        }
+    }, [selection, displayField, inputRef]);
 
     return (
         <div className={$combobox}>
             <div
                 className={$input_wrapper}
                 role="combobox"
-                aria-expanded="false"
+                aria-expanded={expanded ? 'true' : 'false'}
                 aria-owns={listboxId}
                 aria-haspopup="listbox">
                 <input
@@ -86,8 +74,8 @@ export function Combobox<T = undefined>(props: ComboboxProps<T>) {
                     aria-activedescendant={
                         focusIndex === -1 ? '' : id + '-option-' + focusIndex
                     }
-                    onKeyDown={handleKeyDown}
-                    onBlur={() => collapse()}
+                    onKeyDown={handleKeys}
+                    onInput={handleInput}
                     className={$input}
                     ref={inputRef}
                 />
@@ -102,11 +90,11 @@ export function Combobox<T = undefined>(props: ComboboxProps<T>) {
             </div>
             <ListBox
                 id={listboxId}
-                data={data}
+                data={range}
                 displayField={displayField}
                 focusIndex={focusIndex}
                 expanded={expanded}
-                onSelect={handleSelect}
+                onSelect={select}
                 selected={selection}
             />
         </div>
