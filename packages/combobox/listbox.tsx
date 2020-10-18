@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo } from '../utils/react'
 import { ensureArray } from '../utils/array';
 import { hasOwnProperty } from '../utils/object';
 import {

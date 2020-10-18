@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback } from '../utils/react';
 
 const assign = Object.assign;
 const ACTION_TYPE_COLLAPSE = 0;

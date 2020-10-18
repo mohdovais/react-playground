@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useReducer, useEffect } from 'react';
+import React, { useCallback, useRef, useReducer, useEffect } from '../utils/react';
 import ListBox from './listbox';
 import { useRandomId } from '../hook/use-random-id';
 import {

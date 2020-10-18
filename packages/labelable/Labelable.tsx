@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { labelable } from './Labelable.module.scss';
 import { ariaProps } from '../utils';
 
