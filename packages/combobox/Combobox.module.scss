@@ -1,5 +1,6 @@
 .combobox {
     display: inline-block;
+    position: relative;
 }
 
 .input_wrapper {
@@ -15,9 +16,19 @@
 
 .trigger {
     position: absolute;
-    top: 0;
-    right: 0;
-    width: 24px;
-    height: 24px;
+    top: 1px;
+    right: 1px;
+    width: 22px;
+    height: 22px;
+    background-color: #fff;
     border-left: 1px solid #ccc;
+    cursor: pointer;
+}
+
+.picker {
+    position: absolute;
+    max-height: 300px;
+    min-width: 100%;
+    width: max-content;
+    max-width: 95vw;
 }

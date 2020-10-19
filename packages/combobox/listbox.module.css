@@ -2,9 +2,15 @@
     margin: 0;
     padding: 0;
     list-style: none;
+    box-sizing: border-box;
 }
 
-.listbox:not(:empty){
+.listbox:not(:empty) {
+    border: 1px solid #ccc;
+    z-index: 1;
+    background-color: #fff;
+    box-shadow: 1px 1px 3px 0 rgba(0,0,0,0.2);
+    overflow: auto;
     border: 1px solid #ccc;
 }
 
@@ -33,5 +39,5 @@
 }
 
 .selected {
-    box-shadow: 0 0 1px 0px red;;
+    box-shadow: 0 0 1px 0px red;
 }

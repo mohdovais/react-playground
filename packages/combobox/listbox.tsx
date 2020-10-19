@@ -13,7 +13,7 @@ export interface ListBoxProps<T> {
     className?: string;
     id: string;
     data?: T[];
-    displayField?: string;
+    displayField: string;
     selected?: T;
     onSelect: (selection: T) => void;
     focusIndex: number;
@@ -21,22 +21,33 @@ export interface ListBoxProps<T> {
     optionRenderer?: (record: T) => JSX.Element | string;
 }
 
-function ListBox(props: ListBoxProps<Json>) {
+function ListBox(
+    props: ListBoxProps<Json>,
+    ref:
+        | React.MutableRefObject<HTMLUListElement | null>
+        | ((instance: HTMLUListElement | null) => void)
+        | null
+) {
     const {
         id,
         className = '',
         data,
         displayField,
         selected,
-        onSelect,
         focusIndex,
         expanded,
+        onSelect,
         optionRenderer,
     } = props;
+
     return (
-        <ul id={id} role="listbox" className={$listbox + ' ' + className}>
+        <ul
+            id={id}
+            role="listbox"
+            className={$listbox + ' ' + className}
+            ref={ref}>
             {expanded
-                ? ensureArray<T>(data).map((item, index) => (
+                ? ensureArray<Json>(data).map((item, index) => (
                       <li
                           key={id + '-option-' + index}
                           role="option"
@@ -50,7 +61,7 @@ function ListBox(props: ListBoxProps<Json>) {
                           {typeof optionRenderer === 'function'
                               ? optionRenderer(item)
                               : hasOwnProperty(item, displayField)
-                              ? item[displayField]
+                              ? String(item[displayField])
                               : null}
                       </li>
                   ))
@@ -59,4 +70,5 @@ function ListBox(props: ListBoxProps<Json>) {
     );
 }
 
-export default memo(ListBox);
+const ListBoxWithForwardRef = React.forwardRef(ListBox);
+export default memo(ListBoxWithForwardRef);

@@ -1,3 +1,3 @@
-import { Combobox } from './Combobox';
+import { Combobox } from './combobox';
 
 export default Combobox;

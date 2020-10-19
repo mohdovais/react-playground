@@ -113,6 +113,7 @@ export function comboboxReducer(state: ComboboxState<Json>, action: ComboboxActi
             if (state.focusIndex !== -1) {
                 return assign({}, state, {
                     expanded: false,
+                    focusIndex: -1,
                     selection: state.range[state.focusIndex]
                 })
             }
@@ -121,6 +122,7 @@ export function comboboxReducer(state: ComboboxState<Json>, action: ComboboxActi
         case ACTION_TYPE_SELECT:
             return assign({}, state, {
                 expanded: false,
+                focusIndex: -1,
                 selection: action.selection
             });
 
