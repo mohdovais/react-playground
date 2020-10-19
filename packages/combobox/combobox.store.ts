@@ -9,12 +9,16 @@ const ACTION_TYPE_KEY_ARROW_UP = 4;
 const ACTION_TYPE_KEY_ENTER = 5;
 const ACTION_TYPE_SELECT = 6;
 const ACTION_TYPE_SET_DATA = 7;
+const ACTION_TYPE_SEARCH = 8;
+
+// not actual definition of JSON (null and Array not used)
+export type Json = { [prop: string]: string | number | boolean | Date }
 
 export interface ComboboxState<T> {
-    id?: string;
+    displayField: string;
     expanded: boolean;
     focusIndex: number;
-    selection: T;
+    selection?: T;
     data: T[];
     range: T[];
 }
@@ -53,9 +57,15 @@ export interface ComboboxActionSetData<T> {
     data: T[]
 }
 
-export type ComboboxAction<T> = ComboboxActionCollpase | ComboboxActionExpand | ComboboxActionToggle | CompobobxActionArrowDown | ComboboxActionArrowUp | ComboboxActionEnter | ComboboxActionSelect<T> | ComboboxActionSetData<T>;
+export interface ComboboxActionSearch {
+    type: typeof ACTION_TYPE_SEARCH,
+    query: string;
+}
+
+export type ComboboxAction<T> = ComboboxActionCollpase | ComboboxActionExpand | ComboboxActionToggle | CompobobxActionArrowDown | ComboboxActionArrowUp | ComboboxActionEnter | ComboboxActionSelect<T> | ComboboxActionSetData<T> | ComboboxActionSearch;
 
 export const initialState = {
+    displayField: '',
     expanded: false,
     focusIndex: -1,
     selection: undefined,
@@ -63,7 +73,7 @@ export const initialState = {
     range: []
 }
 
-export function comboboxReducer<T>(state: ComboboxState<T>, action: ComboboxAction<T>) {
+export function comboboxReducer(state: ComboboxState<Json>, action: ComboboxAction<Json>) {
 
     switch (action.type) {
         case ACTION_TYPE_COLLAPSE:
@@ -122,12 +132,21 @@ export function comboboxReducer<T>(state: ComboboxState<T>, action: ComboboxActi
             });
         }
 
+        case ACTION_TYPE_SEARCH: {
+            const search = new RegExp(action.query, 'i');
+            return assign({}, state, {
+                expanded: true,
+                range: state.data.filter(record => search.test(record[state.displayField].toString()))
+            })
+        }
+
+
     }
 
     return state;
 }
 
-export function useComboboxActions<T>(dispatch: React.Dispatch<ComboboxAction<T>>) {
+export function useComboboxActions<Json>(dispatch: React.Dispatch<ComboboxAction<Json>>) {
 
     const expand = useCallback(function () {
         dispatch({ type: ACTION_TYPE_EXPAND })
@@ -141,7 +160,7 @@ export function useComboboxActions<T>(dispatch: React.Dispatch<ComboboxAction<T>
         dispatch({ type: ACTION_TYPE_TOGGLE })
     }, [dispatch])
 
-    const select = useCallback(function (selection: T) {
+    const select = useCallback(function (selection: Json) {
         dispatch({
             type: ACTION_TYPE_SELECT,
             selection
@@ -172,10 +191,13 @@ export function useComboboxActions<T>(dispatch: React.Dispatch<ComboboxAction<T>
 
     const handleInput = useCallback(function (event: React.FormEvent<HTMLInputElement>) {
         const inputEl = event.target as HTMLInputElement;
-        const text = inputEl.value;
+        dispatch({
+            type: ACTION_TYPE_SEARCH,
+            query: inputEl.value
+        })
     }, [dispatch]);
 
-    const setData = useCallback(function (data: T[]) {
+    const setData = useCallback(function (data: Json[]) {
         dispatch({ type: ACTION_TYPE_SET_DATA, data })
     }, [dispatch])
 

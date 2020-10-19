@@ -17,5 +17,13 @@ const veggies = [
 ];
 
 export function Application() {
-    return <Combobox label="Fruit or Vegtable" value="123" data={veggies} />;
+    return (
+        <Combobox
+            value="123"
+            data={veggies}
+            optionRenderer={(record) => 'Fruit ' + record.text}
+            displayRenderer={record => 'aaa' + record.value}
+            query={(query:string)=> {}}
+        />
+    );
 }

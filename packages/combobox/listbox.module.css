@@ -5,7 +5,7 @@
 }
 
 .listbox:not(:empty){
-    border: 1px solid red;
+    border: 1px solid #ccc;
 }
 
 .option {
@@ -15,7 +15,7 @@
 }
 
 .option + .option {
-    border-top: 1px solid red;
+    border-top: 1px solid #ccc;
 }
 
 .option:hover::after {
@@ -33,5 +33,5 @@
 }
 
 .selected {
-    box-shadow: 0 0 2px 2px red;;
+    box-shadow: 0 0 1px 0px red;;
 }

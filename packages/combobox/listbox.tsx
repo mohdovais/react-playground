@@ -1,6 +1,7 @@
-import React, { memo } from '../utils/react'
+import React, { memo } from '../utils/react';
 import { ensureArray } from '../utils/array';
 import { hasOwnProperty } from '../utils/object';
+import { Json } from './combobox.store';
 import {
     listbox as $listbox,
     option as $option,
@@ -12,14 +13,15 @@ export interface ListBoxProps<T> {
     className?: string;
     id: string;
     data?: T[];
-    displayField: string;
-    selected: T;
+    displayField?: string;
+    selected?: T;
     onSelect: (selection: T) => void;
     focusIndex: number;
     expanded: boolean;
+    optionRenderer?: (record: T) => JSX.Element | string;
 }
 
-function ListBox<T>(props: ListBoxProps<T>) {
+function ListBox(props: ListBoxProps<Json>) {
     const {
         id,
         className = '',
@@ -29,6 +31,7 @@ function ListBox<T>(props: ListBoxProps<T>) {
         onSelect,
         focusIndex,
         expanded,
+        optionRenderer,
     } = props;
     return (
         <ul id={id} role="listbox" className={$listbox + ' ' + className}>
@@ -44,7 +47,9 @@ function ListBox<T>(props: ListBoxProps<T>) {
                               (selected === item ? ' ' + $selected : '')
                           }
                           onClick={() => onSelect(item)}>
-                          {hasOwnProperty(item, displayField)
+                          {typeof optionRenderer === 'function'
+                              ? optionRenderer(item)
+                              : hasOwnProperty(item, displayField)
                               ? item[displayField]
                               : null}
                       </li>

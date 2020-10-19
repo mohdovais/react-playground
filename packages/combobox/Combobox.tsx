@@ -1,10 +1,16 @@
-import React, { useCallback, useRef, useReducer, useEffect } from '../utils/react';
+import React, {
+    useCallback,
+    useRef,
+    useReducer,
+    useEffect,
+} from '../utils/react';
 import ListBox from './listbox';
 import { useRandomId } from '../hook/use-random-id';
 import {
     comboboxReducer,
     initialState,
     useComboboxActions,
+    Json,
 } from './combobox.store';
 import {
     combobox as $combobox,
@@ -19,18 +25,29 @@ export interface ComboboxProps<T> {
     queryMode: 'local';
     data: T[];
     onChange?: (selection: T) => void;
-}git 
+    optionRenderer?: (record: T) => JSX.Element | string;
+    displayRenderer?: (record: T) => JSX.Element | string;
+    query?: (search: string) => T[];
+}
 
-export function Combobox<T>(props: ComboboxProps<T>) {
-    const { data, displayField = 'text', onChange } = props;
+export function Combobox(props: ComboboxProps<Json>) {
+    const {
+        data,
+        displayField = 'text',
+        onChange,
+        optionRenderer,
+        displayRenderer,
+    } = props;
     const inputRef = useRef<HTMLInputElement>(null);
     const id = useRandomId('combobox-');
     const listboxId = id + '-listbox';
-    const [state, dispatch] = useReducer(comboboxReducer, initialState);
+    const [state, dispatch] = useReducer(
+        comboboxReducer,
+        initialState,
+        (state) => Object.assign({}, state, { displayField })
+    );
     const { expanded, selection, range, focusIndex } = state;
     const {
-        expand,
-        collapse,
         toggle,
         select,
         handleKeys,
@@ -54,10 +71,13 @@ export function Combobox<T>(props: ComboboxProps<T>) {
     }, [data]);
 
     useEffect(() => {
-        if(selection && inputRef.current){
-            inputRef.current.value = selection[displayField];
+        if (selection && inputRef.current) {
+            inputRef.current.value =
+                typeof displayRenderer === 'function'
+                    ? displayRenderer(selection).toString()
+                    : selection[displayField].toString();
         }
-    }, [selection, displayField, inputRef]);
+    }, [selection, displayField, inputRef, displayRenderer]);
 
     return (
         <div className={$combobox}>
@@ -96,6 +116,7 @@ export function Combobox<T>(props: ComboboxProps<T>) {
                 expanded={expanded}
                 onSelect={select}
                 selected={selection}
+                optionRenderer={optionRenderer}
             />
         </div>
     );
