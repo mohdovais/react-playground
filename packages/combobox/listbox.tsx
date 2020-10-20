@@ -1,4 +1,4 @@
-import React, { memo } from '../utils/react';
+import React, { memo, useEffect } from '../utils/react';
 import { ensureArray } from '../utils/array';
 import { hasOwnProperty } from '../utils/object';
 import { Json } from './combobox.store';
@@ -18,16 +18,11 @@ export interface ListBoxProps<T> {
     onSelect: (selection: T) => void;
     focusIndex: number;
     expanded: boolean;
+    style: React.CSSProperties;
     optionRenderer?: (record: T) => JSX.Element | string;
 }
 
-function ListBox(
-    props: ListBoxProps<Json>,
-    ref:
-        | React.MutableRefObject<HTMLUListElement | null>
-        | ((instance: HTMLUListElement | null) => void)
-        | null
-) {
+function ListBox(props: ListBoxProps<Json>) {
     const {
         id,
         className = '',
@@ -36,22 +31,34 @@ function ListBox(
         selected,
         focusIndex,
         expanded,
+        style,
         onSelect,
         optionRenderer,
     } = props;
+
+    const idPrefx = id + '-option-';
+
+    useEffect(() => {
+        if (focusIndex > -1) {
+            const li = document.getElementById(idPrefx + focusIndex);
+            if (li) {
+                li.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+    }, [focusIndex]);
 
     return (
         <ul
             id={id}
             role="listbox"
             className={$listbox + ' ' + className}
-            ref={ref}>
+            style={style}>
             {expanded
                 ? ensureArray<Json>(data).map((item, index) => (
                       <li
-                          key={id + '-option-' + index}
+                          key={idPrefx + index}
                           role="option"
-                          id={id + '-option-' + index}
+                          id={idPrefx + index}
                           className={
                               $option +
                               (focusIndex === index ? ' ' + $focus : '') +
@@ -70,5 +77,4 @@ function ListBox(
     );
 }
 
-const ListBoxWithForwardRef = React.forwardRef(ListBox);
-export default memo(ListBoxWithForwardRef);
+export default memo(ListBox);

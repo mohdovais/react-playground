@@ -6,12 +6,9 @@ import React, {
 } from '../utils/react';
 import ListBox from './listbox';
 import { useRandomId } from '../hook/use-random-id';
-import {
-    comboboxReducer,
-    initialState,
-    useComboboxActions,
-    Json,
-} from './combobox.store';
+import { usePickerPosition } from './use-position';
+import { comboboxReducer, initialState, Json } from './combobox.store';
+import { useComboboxActions } from './use-actions';
 import {
     combobox as $combobox,
     input_wrapper as $input_wrapper,
@@ -31,14 +28,6 @@ export interface ComboboxProps<T> {
     query?: (search: string) => T[];
 }
 
-function resizeOptions(ref: React.RefObject<HTMLUListElement>) {
-    const el = ref.current;
-    if (el) {
-        const rect = el.getBoundingClientRect();
-        el.style.maxHeight = window.innerHeight - rect.y - 10 + 'px';
-    }
-}
-
 export function Combobox(props: ComboboxProps<Json>) {
     const {
         data,
@@ -47,22 +36,14 @@ export function Combobox(props: ComboboxProps<Json>) {
         optionRenderer,
         displayRenderer,
     } = props;
+    const comboboxRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-    const optionsRef = useRef<HTMLUListElement>(null);
-
     const id = useRandomId('combobox-');
-    const listboxId = id + '-listbox';
     const [state, dispatch] = useReducer(
         comboboxReducer,
         initialState,
         (state) => Object.assign({}, state, { displayField })
     );
-    const { expanded, selection, range, focusIndex } = state;
-    const activeDescendantId =
-        expanded && focusIndex === -1
-            ? ''
-            : listboxId + '-option-' + focusIndex;
-
     const {
         toggle,
         select,
@@ -70,6 +51,13 @@ export function Combobox(props: ComboboxProps<Json>) {
         handleInput,
         setData,
     } = useComboboxActions(dispatch);
+    const { expanded, selection, range, focusIndex } = state;
+    const pickerStyle = usePickerPosition(comboboxRef, expanded);
+    const pickerId = id + '-picker';
+    const activeDescendantId =
+        expanded && focusIndex === -1
+            ? ''
+            : pickerId + '-option-' + focusIndex;
 
     const handleTriggerClick = useCallback(
         function () {
@@ -103,39 +91,18 @@ export function Combobox(props: ComboboxProps<Json>) {
         }
     }, [selection, onChange]);
 
-    useEffect(() => {
-        if (activeDescendantId !== '') {
-            const li = document.getElementById(activeDescendantId);
-            if (li) {
-                li.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
-        }
-    }, [activeDescendantId]);
-
-    useEffect(() => {
-        expanded && resizeOptions(optionsRef);
-    }, [optionsRef, expanded]);
-
-    useEffect(() => {
-        const resize = () => resizeOptions(optionsRef);
-        window.addEventListener('resize', resize);
-        return () => {
-            window.removeEventListener('resize', resize);
-        };
-    }, [optionsRef]);
-
     return (
-        <div className={$combobox}>
+        <div className={$combobox} ref={comboboxRef}>
             <div
                 className={$input_wrapper}
                 role="combobox"
                 aria-expanded={expanded ? 'true' : 'false'}
-                aria-owns={listboxId}
+                aria-owns={pickerId}
                 aria-haspopup="listbox">
                 <input
                     type="text"
                     aria-autocomplete="both"
-                    aria-controls={listboxId}
+                    aria-controls={pickerId}
                     aria-activedescendant={activeDescendantId}
                     onKeyDown={handleKeys}
                     onInput={handleInput}
@@ -152,7 +119,7 @@ export function Combobox(props: ComboboxProps<Json>) {
                 </div>
             </div>
             <ListBox
-                id={listboxId}
+                id={pickerId}
                 data={range}
                 displayField={displayField}
                 focusIndex={focusIndex}
@@ -161,7 +128,7 @@ export function Combobox(props: ComboboxProps<Json>) {
                 selected={selection}
                 optionRenderer={optionRenderer}
                 className={$picker}
-                ref={optionsRef}
+                style={pickerStyle}
             />
         </div>
     );
