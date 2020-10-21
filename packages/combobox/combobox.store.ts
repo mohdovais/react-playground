@@ -1,4 +1,4 @@
-const assign = Object.assign;
+import { extend } from '../utils/object';
 
 export const ACTION_TYPE_COLLAPSE = 0;
 export const ACTION_TYPE_EXPAND = 1;
@@ -14,6 +14,7 @@ export const ACTION_TYPE_SEARCH = 8;
 export type Json = { [prop: string]: string | number | boolean | Date };
 
 export interface ComboboxState<T> {
+    id: string;
     displayField: string;
     expanded: boolean;
     focusIndex: number;
@@ -87,24 +88,24 @@ export function comboboxReducer(
 ) {
     switch (action.type) {
         case ACTION_TYPE_COLLAPSE:
-            return assign({}, state, {
+            return extend(state, {
                 expanded: false,
                 focusIndex: -1,
             });
 
         case ACTION_TYPE_EXPAND:
-            return assign({}, state, {
+            return extend(state, {
                 expanded: true,
             });
 
         case ACTION_TYPE_TOGGLE:
-            return assign({}, state, {
+            return extend(state, {
                 expanded: !state.expanded,
             });
 
         case ACTION_TYPE_KEY_ARROW_DOWN: {
             let count = state.range.length;
-            return assign({}, state, {
+            return extend(state, {
                 expanded: true,
                 focusIndex: count === 0 ? -1 : (state.focusIndex + 1) % count,
             });
@@ -113,7 +114,7 @@ export function comboboxReducer(
         case ACTION_TYPE_KEY_ARROW_UP: {
             let count = state.range.length;
             let index = state.focusIndex === -1 ? count : state.focusIndex;
-            return assign({}, state, {
+            return extend(state, {
                 expanded: true,
                 focusIndex: count === 0 ? -1 : (count + index - 1) % count,
             });
@@ -121,24 +122,26 @@ export function comboboxReducer(
 
         case ACTION_TYPE_KEY_ENTER:
             if (state.focusIndex !== -1) {
-                return assign({}, state, {
+                return extend(state, {
                     expanded: false,
                     focusIndex: -1,
+                    range: state.data,
                     selection: state.range[state.focusIndex],
                 });
             }
             break;
 
         case ACTION_TYPE_SELECT:
-            return assign({}, state, {
+            return extend(state, {
                 expanded: false,
                 focusIndex: -1,
+                range: state.data,
                 selection: action.selection,
             });
 
         case ACTION_TYPE_SET_DATA: {
             let data = action.data;
-            return assign({}, state, {
+            return extend(state, {
                 data,
                 range: data,
             });
@@ -146,7 +149,7 @@ export function comboboxReducer(
 
         case ACTION_TYPE_SEARCH: {
             const search = new RegExp(action.query, 'i');
-            return assign({}, state, {
+            return extend(state, {
                 expanded: true,
                 range: state.data.filter((record) =>
                     search.test(record[state.displayField].toString())

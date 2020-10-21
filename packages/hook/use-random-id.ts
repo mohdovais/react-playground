@@ -1,6 +1,7 @@
-import { useState } from "../utils/react";
+import { useState } from '../utils/react';
+import { randomId } from '../utils/common';
 
-export function useRandomId(prefix = "") {
-    const id = useState(() => prefix + Math.round(Math.random() + Math.random() * 10e16).toString(32));
+export function useRandomId(prefix?: string) {
+    const id = useState(() => randomId(prefix));
     return id[0];
 }

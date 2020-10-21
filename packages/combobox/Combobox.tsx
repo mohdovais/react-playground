@@ -5,10 +5,10 @@ import React, {
     useEffect,
 } from '../utils/react';
 import ListBox from './listbox';
-import { useRandomId } from '../hook/use-random-id';
 import { usePickerPosition } from './use-position';
 import { comboboxReducer, initialState, Json } from './combobox.store';
 import { useComboboxActions } from './use-actions';
+import { randomId } from '../utils/common';
 import {
     combobox as $combobox,
     input_wrapper as $input_wrapper,
@@ -16,6 +16,7 @@ import {
     trigger as $trigger,
     picker as $picker,
 } from './combobox.module.scss';
+import { extend } from '../utils/object';
 
 export interface ComboboxProps<T> {
     displayField?: string;
@@ -38,11 +39,10 @@ export function Combobox(props: ComboboxProps<Json>) {
     } = props;
     const comboboxRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-    const id = useRandomId('combobox-');
     const [state, dispatch] = useReducer(
         comboboxReducer,
         initialState,
-        (state) => Object.assign({}, state, { displayField })
+        (state) => extend(state, { id: randomId('combobox'), displayField })
     );
     const {
         toggle,
@@ -51,13 +51,11 @@ export function Combobox(props: ComboboxProps<Json>) {
         handleInput,
         setData,
     } = useComboboxActions(dispatch);
-    const { expanded, selection, range, focusIndex } = state;
+    const { id, expanded, selection, range, focusIndex } = state;
     const pickerStyle = usePickerPosition(comboboxRef, expanded);
     const pickerId = id + '-picker';
     const activeDescendantId =
-        expanded && focusIndex === -1
-            ? ''
-            : pickerId + '-option-' + focusIndex;
+        expanded && focusIndex === -1 ? '' : pickerId + '-option-' + focusIndex;
 
     const handleTriggerClick = useCallback(
         function () {
