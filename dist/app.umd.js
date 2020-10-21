@@ -1,2 +1,443 @@
-!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t(require("react-dom"),require("react")):"function"==typeof define&&define.amd?define(["react-dom","react"],t):(e="undefined"!=typeof globalThis?globalThis:e||self).app=t(e.ReactDOM,e.React)}(this,(function(e,t){"use strict";function n(e){return e&&"object"==typeof e&&"default"in e?e:{default:e}}function o(e){if(e&&e.__esModule)return e;var t=Object.create(null);return e&&Object.keys(e).forEach((function(n){if("default"!==n){var o=Object.getOwnPropertyDescriptor(e,n);Object.defineProperty(t,n,o.get?o:{enumerable:!0,get:function(){return e[n]}})}})),t.default=e,Object.freeze(t)}var r=o(t),a=n(t);const c=t.memo,i=t.useCallback,l=t.useState,s=t.useRef,u=t.useReducer,d=t.useEffect;const f=Object,p=f.assign;function m(e,t){return p({},e,t)}var x=c((function(e){const{id:t,className:n="",data:o,displayField:a,selected:c,focusIndex:i,expanded:l,style:s,onSelect:u,optionRenderer:p}=e,m=t+"-option-";return d((()=>{if(i>-1){const e=document.getElementById(m+i);e&&e.scrollIntoView({behavior:"smooth",block:"nearest"})}}),[i]),r.createElement("ul",{id:t,role:"listbox",className:"listbox-module_listbox__16qJO "+n,style:s},l?(x=o,null==x?[]:Array.isArray(x)?x:[x]).map(((e,t)=>{return r.createElement("li",{key:m+t,role:"option",id:m+t,className:"listbox-module_option__3a9MH"+(i===t?" listbox-module_focus__m8cIN":"")+(c===e?" listbox-module_selected__2AANR":""),onClick:()=>u(e)},"function"==typeof p?p(e):(n=e,o=a,f.prototype.hasOwnProperty.call(n,o)?String(e[a]):null));var n,o})):null);var x}));const b=window,y=b.addEventListener,g=b.removeEventListener,_={display:"none"};function h(e){if(null==e)return _;const t=b.innerHeight,{top:n,bottom:o,height:r}=e.getBoundingClientRect();if(n<0||n>t)return _;return n<t-o?{top:r,maxHeight:t-o-5}:{bottom:r,maxHeight:n-5}}const I={displayField:"",expanded:!1,focusIndex:-1,selection:void 0,data:[],range:[]};function v(e,t){switch(t.type){case 0:return m(e,{expanded:!1,focusIndex:-1});case 1:return m(e,{expanded:!0});case 2:return m(e,{expanded:!e.expanded});case 3:{let t=e.range.length;return m(e,{expanded:!0,focusIndex:0===t?-1:(e.focusIndex+1)%t})}case 4:{let t=e.range.length,n=-1===e.focusIndex?t:e.focusIndex;return m(e,{expanded:!0,focusIndex:0===t?-1:(t+n-1)%t})}case 5:if(-1!==e.focusIndex)return m(e,{expanded:!1,focusIndex:-1,range:e.data,selection:e.range[e.focusIndex]});break;case 6:return m(e,{expanded:!1,focusIndex:-1,range:e.data,selection:t.selection});case 7:{let n=t.data;return m(e,{data:n,range:n})}case 8:{const n=new RegExp(t.query,"i");return m(e,{expanded:!0,range:e.data.filter((t=>n.test(t[e.displayField].toString())))})}}return e}const{round:E,random:w}=Math;function k(e=""){return e+E(w()+1e17*w()).toString(32)}function R(e){const{data:t,displayField:n="text",onChange:o,optionRenderer:a,displayRenderer:c}=e,f=s(null),p=s(null),[E,w]=u(v,I,(e=>m(e,{id:k("combobox"),displayField:n}))),{toggle:R,select:N,handleKeys:j,handleInput:O,setData:A}=function(e){const t=i((function(){e({type:1})}),[e]),n=i((function(){e({type:0})}),[e]),o=i((function(){e({type:2})}),[e]),r=i((function(t){e({type:6,selection:t})}),[e]),a=i((function(t){switch(t.key){case"ArrowDown":e({type:3});break;case"ArrowUp":e({type:4});break;case"Escape":n();break;case"Enter":e({type:5})}}),[e]),c=i((function(t){const n=t.target;e({type:8,query:n.value})}),[e]),l=i((function(t){e({type:7,data:t})}),[e]);return{expand:t,collapse:n,toggle:o,select:r,handleKeys:a,handleInput:c,setData:l}}(w),{id:S,expanded:D,selection:F,range:q,focusIndex:C}=E,M=function(e,t){const n=e.current,[o,r]=l((()=>h(n)));return d((()=>{let e=!1;function o(){t&&!e&&(e=!0,b.requestAnimationFrame((()=>{r(h(n)),e=!1})))}return y("resize",o),y("scroll",o),t?o():r(_),()=>{g("resize",o),g("scroll",o)}}),[t,n]),o}(f,D),H=S+"-picker",z=D&&-1===C?"":H+"-option-"+C,K=i((function(){let e=p.current;e&&e.focus(),R()}),[p]);return d((()=>{A(t)}),[t]),d((()=>{const e=p.current;e&&(e.value=F?"function"==typeof c?c(F).toString():F[n].toString():"")}),[F,n,p,c]),d((()=>{"function"==typeof o&&o(F)}),[F,o]),r.createElement("div",{className:"combobox-module_combobox__2i64f",ref:f},r.createElement("div",{className:"combobox-module_input_wrapper__1Zu2R",role:"combobox","aria-expanded":D?"true":"false","aria-owns":H,"aria-haspopup":"listbox"},r.createElement("input",{type:"text","aria-autocomplete":"both","aria-controls":H,"aria-activedescendant":z,onKeyDown:j,onInput:O,className:"combobox-module_input__2AUD3",ref:p}),r.createElement("div",{className:"combobox-module_trigger__29Deo",tabIndex:-1,role:"button","aria-label":"Show options",onClick:K},"▼")),r.createElement(x,{id:H,data:q,displayField:n,focusIndex:C,expanded:D,onSelect:N,selected:F,optionRenderer:a,className:"combobox-module_picker__1MrXx",style:M}))}function N(){const[e,n]=l([]);return d((()=>{fetch("/data/countries.json").then((e=>e.json())).then(n)}),[]),t.createElement(R,{data:e,displayField:"name"})}return{render:function(t){e.render(a.default.createElement(N,null),t)},unmount:function(t){e.unmountComponentAtNode(t)}}}));
+(function (global, factory) {
+    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('react-dom'), require('react')) :
+    typeof define === 'function' && define.amd ? define(['react-dom', 'react'], factory) :
+    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.app = factory(global.ReactDOM, global.React));
+}(this, (function (ReactDOM, React) { 'use strict';
+
+    function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+
+    function _interopNamespace(e) {
+        if (e && e.__esModule) return e;
+        var n = Object.create(null);
+        if (e) {
+            Object.keys(e).forEach(function (k) {
+                if (k !== 'default') {
+                    var d = Object.getOwnPropertyDescriptor(e, k);
+                    Object.defineProperty(n, k, d.get ? d : {
+                        enumerable: true,
+                        get: function () {
+                            return e[k];
+                        }
+                    });
+                }
+            });
+        }
+        n['default'] = e;
+        return Object.freeze(n);
+    }
+
+    var React__namespace = /*#__PURE__*/_interopNamespace(React);
+    var React__default = /*#__PURE__*/_interopDefaultLegacy(React);
+
+    const memo = React.memo;
+    const useCallback = React.useCallback;
+    const useState = React.useState;
+    const useRef = React.useRef;
+    const useReducer = React.useReducer;
+    const useEffect = React.useEffect;
+
+    function ensureArray(subject) {
+      if (subject == null)
+        return [];
+      if (Array.isArray(subject))
+        return subject;
+      return [subject];
+    }
+
+    const O = Object;
+    const assign = O.assign;
+    function extend(a, b) {
+      return assign({}, a, b);
+    }
+    function hasOwnProperty(object, property) {
+      return O.prototype.hasOwnProperty.call(object, property);
+    }
+
+    var listbox = "listbox-module_listbox__16qJO";
+    var option = "listbox-module_option__3a9MH";
+    var focus = "listbox-module_focus__m8cIN";
+    var selected = "listbox-module_selected__2AANR";
+
+    function ListBox(props) {
+      const {
+        id,
+        className = "",
+        data,
+        displayField,
+        selected: selected$1,
+        focusIndex,
+        expanded,
+        style,
+        onSelect,
+        optionRenderer
+      } = props;
+      const idPrefx = id + "-option-";
+      useEffect(() => {
+        if (focusIndex > -1) {
+          const li = document.getElementById(idPrefx + focusIndex);
+          if (li) {
+            li.scrollIntoView({behavior: "smooth", block: "nearest"});
+          }
+        }
+      }, [focusIndex]);
+      return /* @__PURE__ */ React__namespace.createElement("ul", {
+        id,
+        role: "listbox",
+        className: listbox + " " + className,
+        style,
+        tabIndex: -1
+      }, expanded ? ensureArray(data).map((item, index) => /* @__PURE__ */ React__namespace.createElement("li", {
+        key: idPrefx + index,
+        role: "option",
+        id: idPrefx + index,
+        className: option + (focusIndex === index ? " " + focus : "") + (selected$1 === item ? " " + selected : ""),
+        onClick: () => onSelect(item)
+      }, typeof optionRenderer === "function" ? optionRenderer(item) : hasOwnProperty(item, displayField) ? String(item[displayField]) : null)) : null);
+    }
+    var ListBox$1 = memo(ListBox);
+
+    const win = window;
+    const addEventListener = win.addEventListener;
+    const removeEventListener = win.removeEventListener;
+
+    const displayNone = {
+      display: "none"
+    };
+    function getPosition(el) {
+      if (el == null) {
+        return displayNone;
+      }
+      const viewportHeight = win.innerHeight;
+      const {top, bottom, height} = el.getBoundingClientRect();
+      if (top < 0 || top > viewportHeight) {
+        return displayNone;
+      }
+      const bottomSpace = viewportHeight - bottom;
+      if (top < bottomSpace) {
+        return {
+          top: height,
+          maxHeight: viewportHeight - bottom - 5
+        };
+      }
+      return {
+        bottom: height,
+        maxHeight: top - 5
+      };
+    }
+    function usePickerPosition(ref, calculate) {
+      const current = ref.current;
+      const [postion, setPosition] = useState(() => getPosition(current));
+      useEffect(() => {
+        let busy = false;
+        function doCalculate() {
+          if (calculate && !busy) {
+            busy = true;
+            win.requestAnimationFrame(() => {
+              setPosition(getPosition(current));
+              busy = false;
+            });
+          }
+        }
+        addEventListener("resize", doCalculate);
+        addEventListener("scroll", doCalculate);
+        if (calculate) {
+          doCalculate();
+        } else {
+          setPosition(displayNone);
+        }
+        return () => {
+          removeEventListener("resize", doCalculate);
+          removeEventListener("scroll", doCalculate);
+        };
+      }, [calculate, current]);
+      return postion;
+    }
+
+    const ACTION_TYPE_COLLAPSE = 0;
+    const ACTION_TYPE_EXPAND = 1;
+    const ACTION_TYPE_TOGGLE = 2;
+    const ACTION_TYPE_KEY_ARROW_DOWN = 3;
+    const ACTION_TYPE_KEY_ARROW_UP = 4;
+    const ACTION_TYPE_KEY_ENTER = 5;
+    const ACTION_TYPE_SELECT = 6;
+    const ACTION_TYPE_SET_DATA = 7;
+    const ACTION_TYPE_SEARCH = 8;
+    const initialState = {
+      displayField: "",
+      expanded: false,
+      focusIndex: -1,
+      selection: void 0,
+      data: [],
+      range: []
+    };
+    function comboboxReducer(state, action) {
+      switch (action.type) {
+        case ACTION_TYPE_COLLAPSE:
+          return extend(state, {
+            expanded: false,
+            focusIndex: -1
+          });
+        case ACTION_TYPE_EXPAND:
+          return extend(state, {
+            expanded: true
+          });
+        case ACTION_TYPE_TOGGLE:
+          return comboboxReducer(state, {
+            type: state.expanded ? ACTION_TYPE_COLLAPSE : ACTION_TYPE_EXPAND
+          });
+        case ACTION_TYPE_KEY_ARROW_DOWN: {
+          let count = state.range.length;
+          return extend(state, {
+            expanded: true,
+            focusIndex: count === 0 ? -1 : (state.focusIndex + 1) % count
+          });
+        }
+        case ACTION_TYPE_KEY_ARROW_UP: {
+          let count = state.range.length;
+          let index = state.focusIndex === -1 ? count : state.focusIndex;
+          return extend(state, {
+            expanded: true,
+            focusIndex: count === 0 ? -1 : (count + index - 1) % count
+          });
+        }
+        case ACTION_TYPE_KEY_ENTER:
+          if (state.focusIndex !== -1) {
+            return extend(state, {
+              expanded: false,
+              focusIndex: -1,
+              range: state.data,
+              selection: state.range[state.focusIndex]
+            });
+          }
+          break;
+        case ACTION_TYPE_SELECT:
+          return extend(state, {
+            expanded: false,
+            focusIndex: -1,
+            range: state.data,
+            selection: action.selection
+          });
+        case ACTION_TYPE_SET_DATA: {
+          let data = action.data;
+          return extend(state, {
+            data,
+            range: data
+          });
+        }
+        case ACTION_TYPE_SEARCH: {
+          const search = new RegExp(action.query, "i");
+          return extend(state, {
+            expanded: true,
+            range: state.data.filter((record) => search.test(record[state.displayField].toString()))
+          });
+        }
+      }
+      return state;
+    }
+
+    function useComboboxActions(dispatch) {
+      const expand = useCallback(function() {
+        dispatch({type: ACTION_TYPE_EXPAND});
+      }, [dispatch]);
+      const collapse = useCallback(function() {
+        dispatch({type: ACTION_TYPE_COLLAPSE});
+      }, [dispatch]);
+      const toggle = useCallback(function() {
+        dispatch({type: ACTION_TYPE_TOGGLE});
+      }, [dispatch]);
+      const select = useCallback(function(selection) {
+        dispatch({
+          type: ACTION_TYPE_SELECT,
+          selection
+        });
+      }, [dispatch]);
+      const handleKeys = useCallback(function(event) {
+        switch (event.key) {
+          case "ArrowDown": {
+            dispatch({type: ACTION_TYPE_KEY_ARROW_DOWN});
+            break;
+          }
+          case "ArrowUp": {
+            dispatch({type: ACTION_TYPE_KEY_ARROW_UP});
+            break;
+          }
+          case "Escape":
+            collapse();
+            break;
+          case "Enter":
+            dispatch({type: ACTION_TYPE_KEY_ENTER});
+            break;
+        }
+      }, [dispatch]);
+      const handleSearch = useCallback(function(query) {
+        dispatch({
+          type: ACTION_TYPE_SEARCH,
+          query
+        });
+      }, [dispatch]);
+      const setData = useCallback(function(data) {
+        dispatch({type: ACTION_TYPE_SET_DATA, data});
+      }, [dispatch]);
+      return {
+        expand,
+        collapse,
+        toggle,
+        select,
+        handleKeys,
+        handleSearch,
+        setData
+      };
+    }
+
+    const {round, random} = Math;
+    function randomId(prefix = "") {
+      return prefix + round(random() + random() * 1e17).toString(32);
+    }
+
+    var combobox = "combobox-module_combobox__2i64f";
+    var input_wrapper = "combobox-module_input_wrapper__1Zu2R";
+    var input = "combobox-module_input__2AUD3";
+    var trigger = "combobox-module_trigger__29Deo";
+    var picker = "combobox-module_picker__1MrXx";
+
+    function Combobox(props) {
+      const {
+        queryMode = "local",
+        onRemoteQuery,
+        data = [],
+        displayField = "text",
+        className = "",
+        onChange,
+        optionRenderer,
+        displayRenderer,
+        hideTrigger,
+        disabled,
+        readOnly
+      } = props;
+      const comboboxRef = useRef(null);
+      const inputRef = useRef(null);
+      const [state, dispatch] = useReducer(comboboxReducer, initialState, (state2) => extend(state2, {id: randomId("combobox"), displayField}));
+      const {
+        toggle,
+        select,
+        handleKeys,
+        handleSearch,
+        setData
+      } = useComboboxActions(dispatch);
+      const {id, expanded, selection, range, focusIndex} = state;
+      const pickerStyle = usePickerPosition(comboboxRef, expanded);
+      const pickerId = id + "-picker";
+      const activeDescendantId = expanded && focusIndex === -1 ? "" : pickerId + "-option-" + focusIndex;
+      const handleTriggerClick = useCallback(function() {
+        let el = inputRef.current;
+        if (el) {
+          el.focus();
+        }
+        toggle();
+      }, [inputRef]);
+      const handleInput = useCallback((event) => {
+        const input = event.target;
+        const text = input.value;
+        queryMode === "local" ? handleSearch(text) : Promise.resolve(onRemoteQuery(text)).then((responseData) => setData(responseData));
+      }, [handleSearch, onRemoteQuery]);
+      useEffect(() => {
+        setData(data);
+      }, [data]);
+      useEffect(() => {
+        const input = inputRef.current;
+        if (input) {
+          input.value = selection ? typeof displayRenderer === "function" ? displayRenderer(selection).toString() : selection[displayField].toString() : "";
+        }
+      }, [selection, displayField, inputRef, displayRenderer]);
+      useEffect(() => {
+        if (typeof onChange === "function") {
+          onChange(selection);
+        }
+      }, [selection, onChange]);
+      return /* @__PURE__ */ React__namespace.createElement("div", {
+        className: combobox + " " + className,
+        ref: comboboxRef
+      }, /* @__PURE__ */ React__namespace.createElement("div", {
+        className: input_wrapper,
+        role: "combobox",
+        "aria-expanded": expanded ? "true" : "false",
+        "aria-owns": pickerId,
+        "aria-haspopup": "listbox"
+      }, /* @__PURE__ */ React__namespace.createElement("input", {
+        type: "text",
+        "aria-autocomplete": "both",
+        "aria-controls": pickerId,
+        "aria-activedescendant": activeDescendantId,
+        onKeyDown: handleKeys,
+        onInput: handleInput,
+        className: input,
+        ref: inputRef,
+        disabled,
+        readOnly
+      }), hideTrigger ? null : /* @__PURE__ */ React__namespace.createElement("div", {
+        className: trigger,
+        tabIndex: -1,
+        role: "button",
+        "aria-label": "Show options",
+        onClick: disabled ? void 0 : handleTriggerClick
+      }, "▼")), /* @__PURE__ */ React__namespace.createElement(ListBox$1, {
+        id: pickerId,
+        data: range,
+        displayField,
+        focusIndex,
+        expanded,
+        onSelect: select,
+        selected: selection,
+        optionRenderer,
+        className: picker,
+        style: pickerStyle
+      }));
+    }
+    var Combobox$1 = memo(Combobox);
+
+    function Application() {
+      const [countries, setCountries] = useState([]);
+      const [remoteData, setRemoteData] = useState([]);
+      useEffect(() => {
+        fetch("/data/countries.json").then((response) => response.json()).then(setCountries);
+      }, []);
+      return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h5", null, "Normal"), /* @__PURE__ */ React.createElement(Combobox$1, {
+        data: countries,
+        displayField: "name"
+      }), /* @__PURE__ */ React.createElement("h5", null, "Read Only"), /* @__PURE__ */ React.createElement(Combobox$1, {
+        readOnly: true,
+        data: countries,
+        displayField: "name"
+      }), /* @__PURE__ */ React.createElement("h5", null, "Disabled"), /* @__PURE__ */ React.createElement(Combobox$1, {
+        disabled: true,
+        data: countries,
+        displayField: "name"
+      }), /* @__PURE__ */ React.createElement("h5", null, "Search"), /* @__PURE__ */ React.createElement(Combobox$1, {
+        data: remoteData,
+        displayField: "name",
+        queryMode: "remote",
+        onRemoteQuery: function(query) {
+          return Array.from(query).map((name, index) => ({
+            name,
+            index
+          }));
+        },
+        hideTrigger: true
+      }));
+    }
+
+    function render(container) {
+      ReactDOM.render(/* @__PURE__ */ React__default['default'].createElement(Application, null), container);
+    }
+    function unmount(container) {
+      ReactDOM.unmountComponentAtNode(container);
+    }
+    var main = {
+      render,
+      unmount
+    };
+
+    return main;
+
+})));
 //# sourceMappingURL=app.umd.js.map

@@ -68,12 +68,11 @@ export function useComboboxActions<Json>(
         [dispatch]
     );
 
-    const handleInput = useCallback(
-        function (event: React.FormEvent<HTMLInputElement>) {
-            const inputEl = event.target as HTMLInputElement;
+    const handleSearch = useCallback(
+        function (query: string) {
             dispatch({
                 type: ACTION_TYPE_SEARCH,
-                query: inputEl.value,
+                query,
             });
         },
         [dispatch]
@@ -92,7 +91,7 @@ export function useComboboxActions<Json>(
         toggle,
         select,
         handleKeys,
-        handleInput,
+        handleSearch,
         setData,
     };
 }

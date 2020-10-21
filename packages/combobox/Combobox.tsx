@@ -3,6 +3,7 @@ import React, {
     useRef,
     useReducer,
     useEffect,
+    memo,
 } from '../utils/react';
 import ListBox from './listbox';
 import { usePickerPosition } from './use-position';
@@ -18,25 +19,45 @@ import {
 } from './combobox.module.scss';
 import { extend } from '../utils/object';
 
-export interface ComboboxProps<T> {
+export interface ComboboxCommonProps<T> {
     displayField?: string;
     valueField?: string;
-    queryMode?: 'remote' | 'local';
     data: T[];
     onChange?: (selection?: T) => void;
     optionRenderer?: (record: T) => JSX.Element | string;
     displayRenderer?: (record: T) => JSX.Element | string;
-    query?: (search: string) => T[];
+    hideTrigger?: boolean;
+    disabled?: boolean;
+    readOnly?: boolean;
+    className?: string;
 }
 
-export function Combobox(props: ComboboxProps<Json>) {
+export interface ComboboxLocalProps<T> extends ComboboxCommonProps<T> {
+    queryMode: 'local';
+}
+
+export interface ComboboxRemoteProps<T> extends ComboboxCommonProps<T> {
+    queryMode: 'remote';
+    onRemoteQuery: (search: string) => void;
+}
+
+export type ComboboxProps<T> = ComboboxLocalProps<T> | ComboboxRemoteProps<T>;
+
+function Combobox(props: ComboboxProps<Json>) {
     const {
-        data,
+        queryMode = 'local',
+        onRemoteQuery,
+        data = [],
         displayField = 'text',
+        className = '',
         onChange,
         optionRenderer,
         displayRenderer,
+        hideTrigger,
+        disabled,
+        readOnly,
     } = props;
+
     const comboboxRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const [state, dispatch] = useReducer(
@@ -48,7 +69,7 @@ export function Combobox(props: ComboboxProps<Json>) {
         toggle,
         select,
         handleKeys,
-        handleInput,
+        handleSearch,
         setData,
     } = useComboboxActions(dispatch);
     const { id, expanded, selection, range, focusIndex } = state;
@@ -66,6 +87,19 @@ export function Combobox(props: ComboboxProps<Json>) {
             toggle();
         },
         [inputRef]
+    );
+
+    const handleInput = useCallback(
+        (event: React.FormEvent<HTMLInputElement>) => {
+            const input = event.target as HTMLInputElement;
+            const text = input.value;
+            queryMode === 'local'
+                ? handleSearch(text)
+                : Promise.resolve(onRemoteQuery(text)).then((responseData) =>
+                      setData(responseData)
+                  );
+        },
+        [handleSearch, onRemoteQuery]
     );
 
     useEffect(() => {
@@ -90,7 +124,7 @@ export function Combobox(props: ComboboxProps<Json>) {
     }, [selection, onChange]);
 
     return (
-        <div className={$combobox} ref={comboboxRef}>
+        <div className={$combobox + ' ' + className} ref={comboboxRef}>
             <div
                 className={$input_wrapper}
                 role="combobox"
@@ -106,15 +140,19 @@ export function Combobox(props: ComboboxProps<Json>) {
                     onInput={handleInput}
                     className={$input}
                     ref={inputRef}
+                    disabled={disabled}
+                    readOnly={readOnly}
                 />
-                <div
-                    className={$trigger}
-                    tabIndex={-1}
-                    role="button"
-                    aria-label="Show options"
-                    onClick={handleTriggerClick}>
-                    ▼
-                </div>
+                {hideTrigger ? null : (
+                    <div
+                        className={$trigger}
+                        tabIndex={-1}
+                        role="button"
+                        aria-label="Show options"
+                        onClick={disabled ? undefined : handleTriggerClick}>
+                        ▼
+                    </div>
+                )}
             </div>
             <ListBox
                 id={pickerId}
@@ -131,3 +169,5 @@ export function Combobox(props: ComboboxProps<Json>) {
         </div>
     );
 }
+
+export default memo(Combobox);

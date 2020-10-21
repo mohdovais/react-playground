@@ -85,7 +85,7 @@ export const initialState = {
 export function comboboxReducer(
     state: ComboboxState<Json>,
     action: ComboboxAction<Json>
-) {
+): ComboboxState<Json> {
     switch (action.type) {
         case ACTION_TYPE_COLLAPSE:
             return extend(state, {
@@ -99,8 +99,10 @@ export function comboboxReducer(
             });
 
         case ACTION_TYPE_TOGGLE:
-            return extend(state, {
-                expanded: !state.expanded,
+            return comboboxReducer(state, {
+                type: state.expanded
+                    ? ACTION_TYPE_COLLAPSE
+                    : ACTION_TYPE_EXPAND,
             });
 
         case ACTION_TYPE_KEY_ARROW_DOWN: {

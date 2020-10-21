@@ -52,7 +52,8 @@ function ListBox(props: ListBoxProps<Json>) {
             id={id}
             role="listbox"
             className={$listbox + ' ' + className}
-            style={style}>
+            style={style}
+            tabIndex={-1}>
             {expanded
                 ? ensureArray<Json>(data).map((item, index) => (
                       <li
