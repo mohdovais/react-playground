@@ -5,9 +5,10 @@ import {
     ACTION_TYPE_KEY_ARROW_DOWN,
     ACTION_TYPE_KEY_ARROW_UP,
     ACTION_TYPE_KEY_ENTER,
-    ACTION_TYPE_SEARCH,
+    ACTION_TYPE_LOCAL_SEARCH,
     ACTION_TYPE_SELECT,
     ACTION_TYPE_SET_DATA,
+    ACTION_TYPE_SET_DATA_AND_EXPAND,
     ACTION_TYPE_TOGGLE,
     ComboboxAction,
 } from './combobox.store';
@@ -68,10 +69,10 @@ export function useComboboxActions<Json>(
         [dispatch]
     );
 
-    const handleSearch = useCallback(
+    const handleLocalSearch = useCallback(
         function (query: string) {
             dispatch({
-                type: ACTION_TYPE_SEARCH,
+                type: ACTION_TYPE_LOCAL_SEARCH,
                 query,
             });
         },
@@ -85,13 +86,21 @@ export function useComboboxActions<Json>(
         [dispatch]
     );
 
+    const handleRemoteSearch = useCallback(
+        function (data: Json[]) {
+            dispatch({ type: ACTION_TYPE_SET_DATA_AND_EXPAND, data });
+        },
+        [dispatch]
+    );
+
     return {
         expand,
         collapse,
         toggle,
         select,
         handleKeys,
-        handleSearch,
+        handleLocalSearch,
         setData,
+        handleRemoteSearch
     };
 }

@@ -8,7 +8,8 @@ export const ACTION_TYPE_KEY_ARROW_UP = 4;
 export const ACTION_TYPE_KEY_ENTER = 5;
 export const ACTION_TYPE_SELECT = 6;
 export const ACTION_TYPE_SET_DATA = 7;
-export const ACTION_TYPE_SEARCH = 8;
+export const ACTION_TYPE_LOCAL_SEARCH = 8;
+export const ACTION_TYPE_SET_DATA_AND_EXPAND = 9;
 
 // not actual definition of JSON (null and Array not used)
 export type Json = { [prop: string]: string | number | boolean | Date };
@@ -58,8 +59,13 @@ export interface ComboboxActionSetData<T> {
 }
 
 export interface ComboboxActionSearch {
-    type: typeof ACTION_TYPE_SEARCH;
+    type: typeof ACTION_TYPE_LOCAL_SEARCH;
     query: string;
+}
+
+export interface ComboboxActionSetDataAndExpand<T> {
+    type: typeof ACTION_TYPE_SET_DATA_AND_EXPAND;
+    data: T[];
 }
 
 export type ComboboxAction<T> =
@@ -71,7 +77,8 @@ export type ComboboxAction<T> =
     | ComboboxActionEnter
     | ComboboxActionSelect<T>
     | ComboboxActionSetData<T>
-    | ComboboxActionSearch;
+    | ComboboxActionSearch
+    | ComboboxActionSetDataAndExpand<T>;
 
 export const initialState = {
     displayField: '',
@@ -149,7 +156,7 @@ export function comboboxReducer(
             });
         }
 
-        case ACTION_TYPE_SEARCH: {
+        case ACTION_TYPE_LOCAL_SEARCH: {
             const search = new RegExp(action.query, 'i');
             return extend(state, {
                 expanded: true,
@@ -158,6 +165,17 @@ export function comboboxReducer(
                 ),
             });
         }
+
+        case ACTION_TYPE_SET_DATA_AND_EXPAND:
+            return comboboxReducer(
+                comboboxReducer(state, {
+                    type: ACTION_TYPE_SET_DATA,
+                    data: action.data,
+                }),
+                {
+                    type: ACTION_TYPE_EXPAND,
+                }
+            );
     }
 
     return state;

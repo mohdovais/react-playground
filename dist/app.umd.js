@@ -161,7 +161,8 @@
     const ACTION_TYPE_KEY_ENTER = 5;
     const ACTION_TYPE_SELECT = 6;
     const ACTION_TYPE_SET_DATA = 7;
-    const ACTION_TYPE_SEARCH = 8;
+    const ACTION_TYPE_LOCAL_SEARCH = 8;
+    const ACTION_TYPE_SET_DATA_AND_EXPAND = 9;
     const initialState = {
       displayField: "",
       expanded: false,
@@ -224,13 +225,20 @@
             range: data
           });
         }
-        case ACTION_TYPE_SEARCH: {
+        case ACTION_TYPE_LOCAL_SEARCH: {
           const search = new RegExp(action.query, "i");
           return extend(state, {
             expanded: true,
             range: state.data.filter((record) => search.test(record[state.displayField].toString()))
           });
         }
+        case ACTION_TYPE_SET_DATA_AND_EXPAND:
+          return comboboxReducer(comboboxReducer(state, {
+            type: ACTION_TYPE_SET_DATA,
+            data: action.data
+          }), {
+            type: ACTION_TYPE_EXPAND
+          });
       }
       return state;
     }
@@ -269,14 +277,17 @@
             break;
         }
       }, [dispatch]);
-      const handleSearch = useCallback(function(query) {
+      const handleLocalSearch = useCallback(function(query) {
         dispatch({
-          type: ACTION_TYPE_SEARCH,
+          type: ACTION_TYPE_LOCAL_SEARCH,
           query
         });
       }, [dispatch]);
       const setData = useCallback(function(data) {
         dispatch({type: ACTION_TYPE_SET_DATA, data});
+      }, [dispatch]);
+      const handleRemoteSearch = useCallback(function(data) {
+        dispatch({type: ACTION_TYPE_SET_DATA_AND_EXPAND, data});
       }, [dispatch]);
       return {
         expand,
@@ -284,8 +295,9 @@
         toggle,
         select,
         handleKeys,
-        handleSearch,
-        setData
+        handleLocalSearch,
+        setData,
+        handleRemoteSearch
       };
     }
 
@@ -321,7 +333,8 @@
         toggle,
         select,
         handleKeys,
-        handleSearch,
+        handleRemoteSearch,
+        handleLocalSearch,
         setData
       } = useComboboxActions(dispatch);
       const {id, expanded, selection, range, focusIndex} = state;
@@ -338,8 +351,8 @@
       const handleInput = useCallback((event) => {
         const input = event.target;
         const text = input.value;
-        queryMode === "local" ? handleSearch(text) : Promise.resolve(onRemoteQuery(text)).then((responseData) => setData(responseData));
-      }, [handleSearch, onRemoteQuery]);
+        queryMode === "local" ? handleLocalSearch(text) : Promise.resolve(onRemoteQuery(text)).then(handleRemoteSearch);
+      }, [handleRemoteSearch, onRemoteQuery]);
       useEffect(() => {
         setData(data);
       }, [data]);

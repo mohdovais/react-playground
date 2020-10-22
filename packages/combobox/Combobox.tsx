@@ -69,7 +69,8 @@ function Combobox(props: ComboboxProps<Json>) {
         toggle,
         select,
         handleKeys,
-        handleSearch,
+        handleRemoteSearch,
+        handleLocalSearch,
         setData,
     } = useComboboxActions(dispatch);
     const { id, expanded, selection, range, focusIndex } = state;
@@ -94,12 +95,10 @@ function Combobox(props: ComboboxProps<Json>) {
             const input = event.target as HTMLInputElement;
             const text = input.value;
             queryMode === 'local'
-                ? handleSearch(text)
-                : Promise.resolve(onRemoteQuery(text)).then((responseData) =>
-                      setData(responseData)
-                  );
+                ? handleLocalSearch(text)
+                : Promise.resolve(onRemoteQuery(text)).then(handleRemoteSearch);
         },
-        [handleSearch, onRemoteQuery]
+        [handleRemoteSearch, onRemoteQuery]
     );
 
     useEffect(() => {
