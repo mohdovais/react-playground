@@ -22,7 +22,6 @@ import { extend } from '../utils/object';
 export interface ComboboxCommonProps<T> {
     displayField?: string;
     valueField?: string;
-    data: T[];
     onChange?: (selection?: T) => void;
     optionRenderer?: (record: T) => JSX.Element | string;
     displayRenderer?: (record: T) => JSX.Element | string;
@@ -32,13 +31,17 @@ export interface ComboboxCommonProps<T> {
     className?: string;
 }
 
-export interface ComboboxLocalProps<T> extends ComboboxCommonProps<T> {
-    queryMode: 'local';
+export interface ComboboxLocalProps<T>
+    extends ComboboxCommonProps<T> {
+    queryMode?: 'local';
+    data: T[];
+    onRemoteQuery?: undefined;
 }
 
 export interface ComboboxRemoteProps<T> extends ComboboxCommonProps<T> {
     queryMode: 'remote';
-    onRemoteQuery: (search: string) => void;
+    data?: undefined;
+    onRemoteQuery: (search: string) => T[] | Promise<T[]>;
 }
 
 export type ComboboxProps<T> = ComboboxLocalProps<T> | ComboboxRemoteProps<T>;
@@ -47,7 +50,7 @@ function Combobox(props: ComboboxProps<Json>) {
     const {
         queryMode = 'local',
         onRemoteQuery,
-        data = [],
+        data,
         displayField = 'text',
         className = '',
         onChange,
@@ -63,7 +66,7 @@ function Combobox(props: ComboboxProps<Json>) {
     const [state, dispatch] = useReducer(
         comboboxReducer,
         initialState,
-        (state) => extend(state, { id: randomId('combobox'), displayField })
+        (state) => extend(state, { id: randomId('combobox-'), displayField })
     );
     const {
         toggle,
@@ -72,8 +75,9 @@ function Combobox(props: ComboboxProps<Json>) {
         handleRemoteSearch,
         handleLocalSearch,
         setData,
+        setWaiting,
     } = useComboboxActions(dispatch);
-    const { id, expanded, selection, range, focusIndex } = state;
+    const { id, expanded, selection, range, focusIndex, waiting } = state;
     const pickerStyle = usePickerPosition(comboboxRef, expanded);
     const pickerId = id + '-picker';
     const activeDescendantId =
@@ -94,15 +98,25 @@ function Combobox(props: ComboboxProps<Json>) {
         (event: React.FormEvent<HTMLInputElement>) => {
             const input = event.target as HTMLInputElement;
             const text = input.value;
-            queryMode === 'local'
-                ? handleLocalSearch(text)
-                : Promise.resolve(onRemoteQuery(text)).then(handleRemoteSearch);
+
+            if (queryMode === 'local') {
+                handleLocalSearch(text);
+            } else {
+                setWaiting(true);
+                Promise.resolve(
+                    typeof onRemoteQuery === 'function' && onRemoteQuery(text)
+                ).then((data) => {
+                    data !== false && handleRemoteSearch(data);
+                });
+            }
         },
         [handleRemoteSearch, onRemoteQuery]
     );
 
     useEffect(() => {
-        setData(data);
+        if (data !== undefined) {
+            setData(data);
+        }
     }, [data]);
 
     useEffect(() => {
@@ -123,7 +137,9 @@ function Combobox(props: ComboboxProps<Json>) {
     }, [selection, onChange]);
 
     return (
-        <div className={$combobox + ' ' + className} ref={comboboxRef}>
+        <div
+            className={$combobox + ' ' + className + (waiting ? ' wating' : '')}
+            ref={comboboxRef}>
             <div
                 className={$input_wrapper}
                 role="combobox"

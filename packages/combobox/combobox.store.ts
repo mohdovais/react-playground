@@ -10,12 +10,16 @@ export const ACTION_TYPE_SELECT = 6;
 export const ACTION_TYPE_SET_DATA = 7;
 export const ACTION_TYPE_LOCAL_SEARCH = 8;
 export const ACTION_TYPE_SET_DATA_AND_EXPAND = 9;
+export const ACTION_TYPE_SET_WAITING = 10;
 
 // not actual definition of JSON (null and Array not used)
-export type Json = { [prop: string]: string | number | boolean | Date };
+export type Json = {
+    [prop: string]: string | number | boolean | Date | Json | Json[];
+};
 
 export interface ComboboxState<T> {
     id: string;
+    waiting: boolean;
     displayField: string;
     expanded: boolean;
     focusIndex: number;
@@ -68,6 +72,11 @@ export interface ComboboxActionSetDataAndExpand<T> {
     data: T[];
 }
 
+export interface ComboboxActionSetWating {
+    type: typeof ACTION_TYPE_SET_WAITING;
+    waiting: boolean;
+}
+
 export type ComboboxAction<T> =
     | ComboboxActionCollpase
     | ComboboxActionExpand
@@ -78,21 +87,24 @@ export type ComboboxAction<T> =
     | ComboboxActionSelect<T>
     | ComboboxActionSetData<T>
     | ComboboxActionSearch
-    | ComboboxActionSetDataAndExpand<T>;
+    | ComboboxActionSetDataAndExpand<T>
+    | ComboboxActionSetWating;
 
 export const initialState = {
+    id: '',
     displayField: '',
     expanded: false,
+    waiting: false,
     focusIndex: -1,
     selection: undefined,
     data: [],
     range: [],
 };
 
-export function comboboxReducer(
-    state: ComboboxState<Json>,
-    action: ComboboxAction<Json>
-): ComboboxState<Json> {
+export function comboboxReducer<T extends Json>(
+    state: ComboboxState<T>,
+    action: ComboboxAction<T>
+): ComboboxState<T> {
     switch (action.type) {
         case ACTION_TYPE_COLLAPSE:
             return extend(state, {
@@ -167,15 +179,18 @@ export function comboboxReducer(
         }
 
         case ACTION_TYPE_SET_DATA_AND_EXPAND:
-            return comboboxReducer(
-                comboboxReducer(state, {
-                    type: ACTION_TYPE_SET_DATA,
-                    data: action.data,
-                }),
-                {
-                    type: ACTION_TYPE_EXPAND,
-                }
-            );
+            return extend(state, {
+                expanded: true,
+                focusIndex: -1,
+                waiting: false,
+                data: action.data,
+                range: action.data,
+            });
+
+        case ACTION_TYPE_SET_WAITING:
+            return extend(state, {
+                waiting: action.waiting,
+            });
     }
 
     return state;

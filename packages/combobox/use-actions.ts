@@ -10,6 +10,7 @@ import {
     ACTION_TYPE_SET_DATA,
     ACTION_TYPE_SET_DATA_AND_EXPAND,
     ACTION_TYPE_TOGGLE,
+    ACTION_TYPE_SET_WAITING,
     ComboboxAction,
 } from './combobox.store';
 
@@ -93,6 +94,13 @@ export function useComboboxActions<Json>(
         [dispatch]
     );
 
+    const setWaiting = useCallback(
+        function (waiting: boolean) {
+            dispatch({ type: ACTION_TYPE_SET_WAITING, waiting });
+        },
+        [dispatch]
+    );
+
     return {
         expand,
         collapse,
@@ -101,6 +109,7 @@ export function useComboboxActions<Json>(
         handleKeys,
         handleLocalSearch,
         setData,
-        handleRemoteSearch
+        handleRemoteSearch,
+        setWaiting
     };
 }

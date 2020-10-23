@@ -8,7 +8,7 @@ module.exports = {
         'plugin:react/recommended',
         'plugin:prettier/recommended',
     ],
-    plugins: ['react'],
+    plugins: ['react', 'react-hooks'],
     parserOptions: {
         ecmaFeatures: {
             jsx: true,
@@ -16,7 +16,10 @@ module.exports = {
         ecmaVersion: 2018,
         sourceType: 'module',
     },
-    rules: {
-        
+    rules: {},
+    settings: {
+        react: {
+            version: '17.0',
+        },
     },
 };

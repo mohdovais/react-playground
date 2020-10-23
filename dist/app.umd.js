@@ -163,9 +163,12 @@
     const ACTION_TYPE_SET_DATA = 7;
     const ACTION_TYPE_LOCAL_SEARCH = 8;
     const ACTION_TYPE_SET_DATA_AND_EXPAND = 9;
+    const ACTION_TYPE_SET_WAITING = 10;
     const initialState = {
+      id: "",
       displayField: "",
       expanded: false,
+      waiting: false,
       focusIndex: -1,
       selection: void 0,
       data: [],
@@ -233,11 +236,16 @@
           });
         }
         case ACTION_TYPE_SET_DATA_AND_EXPAND:
-          return comboboxReducer(comboboxReducer(state, {
-            type: ACTION_TYPE_SET_DATA,
-            data: action.data
-          }), {
-            type: ACTION_TYPE_EXPAND
+          return extend(state, {
+            expanded: true,
+            focusIndex: -1,
+            waiting: false,
+            data: action.data,
+            range: action.data
+          });
+        case ACTION_TYPE_SET_WAITING:
+          return extend(state, {
+            waiting: action.waiting
           });
       }
       return state;
@@ -289,6 +297,9 @@
       const handleRemoteSearch = useCallback(function(data) {
         dispatch({type: ACTION_TYPE_SET_DATA_AND_EXPAND, data});
       }, [dispatch]);
+      const setWaiting = useCallback(function(waiting) {
+        dispatch({type: ACTION_TYPE_SET_WAITING, waiting});
+      }, [dispatch]);
       return {
         expand,
         collapse,
@@ -297,7 +308,8 @@
         handleKeys,
         handleLocalSearch,
         setData,
-        handleRemoteSearch
+        handleRemoteSearch,
+        setWaiting
       };
     }
 
@@ -316,7 +328,7 @@
       const {
         queryMode = "local",
         onRemoteQuery,
-        data = [],
+        data,
         displayField = "text",
         className = "",
         onChange,
@@ -328,16 +340,17 @@
       } = props;
       const comboboxRef = useRef(null);
       const inputRef = useRef(null);
-      const [state, dispatch] = useReducer(comboboxReducer, initialState, (state2) => extend(state2, {id: randomId("combobox"), displayField}));
+      const [state, dispatch] = useReducer(comboboxReducer, initialState, (state2) => extend(state2, {id: randomId("combobox-"), displayField}));
       const {
         toggle,
         select,
         handleKeys,
         handleRemoteSearch,
         handleLocalSearch,
-        setData
+        setData,
+        setWaiting
       } = useComboboxActions(dispatch);
-      const {id, expanded, selection, range, focusIndex} = state;
+      const {id, expanded, selection, range, focusIndex, waiting} = state;
       const pickerStyle = usePickerPosition(comboboxRef, expanded);
       const pickerId = id + "-picker";
       const activeDescendantId = expanded && focusIndex === -1 ? "" : pickerId + "-option-" + focusIndex;
@@ -351,10 +364,19 @@
       const handleInput = useCallback((event) => {
         const input = event.target;
         const text = input.value;
-        queryMode === "local" ? handleLocalSearch(text) : Promise.resolve(onRemoteQuery(text)).then(handleRemoteSearch);
+        if (queryMode === "local") {
+          handleLocalSearch(text);
+        } else {
+          setWaiting(true);
+          Promise.resolve(typeof onRemoteQuery === "function" && onRemoteQuery(text)).then((data2) => {
+            data2 !== false && handleRemoteSearch(data2);
+          });
+        }
       }, [handleRemoteSearch, onRemoteQuery]);
       useEffect(() => {
-        setData(data);
+        if (data !== void 0) {
+          setData(data);
+        }
       }, [data]);
       useEffect(() => {
         const input = inputRef.current;
@@ -368,7 +390,7 @@
         }
       }, [selection, onChange]);
       return /* @__PURE__ */ React__namespace.createElement("div", {
-        className: combobox + " " + className,
+        className: combobox + " " + className + (waiting ? " wating" : ""),
         ref: comboboxRef
       }, /* @__PURE__ */ React__namespace.createElement("div", {
         className: input_wrapper,
@@ -426,14 +448,17 @@
         data: countries,
         displayField: "name"
       }), /* @__PURE__ */ React.createElement("h5", null, "Search"), /* @__PURE__ */ React.createElement(Combobox$1, {
-        data: remoteData,
         displayField: "name",
         queryMode: "remote",
         onRemoteQuery: function(query) {
-          return Array.from(query).map((name, index) => ({
-            name,
-            index
-          }));
+          return new Promise(function(resolve, reject) {
+            setTimeout(function() {
+              resolve(Array.from(query).map((name, index) => ({
+                name,
+                index
+              })));
+            }, 5e3);
+          });
         },
         hideTrigger: true
       }));

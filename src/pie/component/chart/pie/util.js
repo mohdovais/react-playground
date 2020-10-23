@@ -5,7 +5,7 @@ export function getAngles(data) {
     const total = sum.apply(null, data);
     let startAngle = 0;
 
-    return data.map(value => {
+    return data.map((value) => {
         return {
             value,
             startAngle,
@@ -40,7 +40,7 @@ export function getInitialState(data) {
         animAngle: 1,
         maxAngle: MATH.max.apply(
             MATH,
-            data.map(pie => pie.endAngle - pie.startAngle)
+            data.map((pie) => pie.endAngle - pie.startAngle)
         ),
     };
 }
@@ -51,7 +51,7 @@ export function getNextAnimationState(state) {
 
     return Object.assign({}, state, {
         animAngle,
-        data: state.data.map(pie => {
+        data: state.data.map((pie) => {
             const animStartAngle = _animStartAngle;
             const animEndAngle =
                 animStartAngle +

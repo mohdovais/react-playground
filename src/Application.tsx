@@ -2,18 +2,18 @@ import * as React from 'react';
 import { useState, useEffect } from '../packages/utils/react';
 import Combobox from '../packages/combobox';
 
-interface Language {
+type Language = {
     code: string;
     name: string;
-}
+};
 
-interface Currency {
+type Currency = {
     code: string;
     name: string;
     symbol: string;
-}
+};
 
-interface Country {
+type Country = {
     name: string;
     code: string;
     capital: string;
@@ -21,7 +21,7 @@ interface Country {
     currency: Currency;
     language: Language;
     flag: string;
-}
+};
 
 export function Application() {
     const [countries, setCountries] = useState<Country[]>([]);
@@ -43,14 +43,19 @@ export function Application() {
             <Combobox disabled data={countries} displayField="name" />
             <h5>Search</h5>
             <Combobox
-                data={remoteData}
                 displayField="name"
                 queryMode="remote"
                 onRemoteQuery={function (query: string) {
-                    return Array.from(query).map((name, index) => ({
-                        name,
-                        index,
-                    }));
+                    return new Promise(function (resolve, reject) {
+                        setTimeout(function () {
+                            resolve(
+                                Array.from(query).map((name, index) => ({
+                                    name,
+                                    index,
+                                }))
+                            );
+                        }, 5000);
+                    });
                 }}
                 hideTrigger
             />
