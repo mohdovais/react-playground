@@ -10,12 +10,14 @@ import { usePickerPosition } from './use-position';
 import { comboboxReducer, initialState, Json } from './combobox.store';
 import { useComboboxActions } from './use-actions';
 import { randomId } from '../utils/common';
+import { debounced } from '../utils/function';
 import {
     combobox as $combobox,
     input_wrapper as $input_wrapper,
     input as $input,
     trigger as $trigger,
     picker as $picker,
+    waiting as $waiting,
 } from './combobox.module.scss';
 import { extend } from '../utils/object';
 
@@ -31,8 +33,7 @@ export interface ComboboxCommonProps<T> {
     className?: string;
 }
 
-export interface ComboboxLocalProps<T>
-    extends ComboboxCommonProps<T> {
+export interface ComboboxLocalProps<T> extends ComboboxCommonProps<T> {
     queryMode?: 'local';
     data: T[];
     onRemoteQuery?: undefined;
@@ -46,28 +47,37 @@ export interface ComboboxRemoteProps<T> extends ComboboxCommonProps<T> {
 
 export type ComboboxProps<T> = ComboboxLocalProps<T> | ComboboxRemoteProps<T>;
 
+function focus(ref: React.RefObject<HTMLElement>) {
+    let el = ref.current;
+    if (el) {
+        el.focus();
+    }
+}
+
 function Combobox(props: ComboboxProps<Json>) {
+    const comboboxRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
+
     const {
         queryMode = 'local',
-        onRemoteQuery,
-        data,
         displayField = 'text',
         className = '',
-        onChange,
-        optionRenderer,
-        displayRenderer,
+        data,
         hideTrigger,
         disabled,
         readOnly,
+        onChange,
+        onRemoteQuery,
+        optionRenderer,
+        displayRenderer,
     } = props;
 
-    const comboboxRef = useRef<HTMLDivElement>(null);
-    const inputRef = useRef<HTMLInputElement>(null);
     const [state, dispatch] = useReducer(
         comboboxReducer,
         initialState,
         (state) => extend(state, { id: randomId('combobox-'), displayField })
     );
+
     const {
         toggle,
         select,
@@ -77,28 +87,22 @@ function Combobox(props: ComboboxProps<Json>) {
         setData,
         setWaiting,
     } = useComboboxActions(dispatch);
+
     const { id, expanded, selection, range, focusIndex, waiting } = state;
     const pickerStyle = usePickerPosition(comboboxRef, expanded);
     const pickerId = id + '-picker';
     const activeDescendantId =
         expanded && focusIndex === -1 ? '' : pickerId + '-option-' + focusIndex;
 
-    const handleTriggerClick = useCallback(
-        function () {
-            let el = inputRef.current;
-            if (el) {
-                el.focus();
-            }
-            toggle();
-        },
-        [inputRef]
-    );
+    const handleTriggerClick = useCallback(() => {
+        focus(inputRef);
+        toggle();
+    }, [inputRef]);
 
     const handleInput = useCallback(
-        (event: React.FormEvent<HTMLInputElement>) => {
+        debounced((event: React.FormEvent<HTMLInputElement>) => {
             const input = event.target as HTMLInputElement;
             const text = input.value;
-
             if (queryMode === 'local') {
                 handleLocalSearch(text);
             } else {
@@ -109,8 +113,14 @@ function Combobox(props: ComboboxProps<Json>) {
                     data !== false && handleRemoteSearch(data);
                 });
             }
-        },
-        [handleRemoteSearch, onRemoteQuery]
+        }),
+        [
+            queryMode,
+            onRemoteQuery,
+            setWaiting,
+            handleLocalSearch,
+            handleRemoteSearch,
+        ]
     );
 
     useEffect(() => {
@@ -138,7 +148,12 @@ function Combobox(props: ComboboxProps<Json>) {
 
     return (
         <div
-            className={$combobox + ' ' + className + (waiting ? ' wating' : '')}
+            className={
+                $combobox +
+                ' ' +
+                className +
+                (waiting ? ' wating ' + $waiting : '')
+            }
             ref={comboboxRef}>
             <div
                 className={$input_wrapper}

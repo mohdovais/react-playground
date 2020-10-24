@@ -1,0 +1,17 @@
+.wrapper {
+    display: flex;
+}
+
+.flag {
+    width: 50px;
+    box-shadow: 0 0 1px 0 #999;
+}
+
+.details {
+    flex: 1;
+    margin-left: 1em;
+}
+
+.capital {
+    color: #666;
+}

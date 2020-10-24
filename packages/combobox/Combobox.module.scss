@@ -36,3 +36,7 @@ input:disabled + .trigger {
     width: max-content;
     max-width: 95vw;
 }
+
+.waiting .input{
+    border-color: blue;
+}

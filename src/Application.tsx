@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { useState, useEffect } from '../packages/utils/react';
+import { useState, useEffect, useCallback } from '../packages/utils/react';
 import Combobox from '../packages/combobox';
+import OptionCountry from './option-country';
 
 type Language = {
     code: string;
@@ -13,7 +14,7 @@ type Currency = {
     symbol: string;
 };
 
-type Country = {
+export type Country = {
     name: string;
     code: string;
     capital: string;
@@ -33,6 +34,25 @@ export function Application() {
             .then(setCountries);
     }, []);
 
+    const remoteQuery = useCallback(
+        function (query: string) {
+            query = query.trim();
+            if (query === '') return [];
+            return new Promise<Country[]>(function (resolve, reject) {
+                const re = new RegExp(query, 'i');
+                const result = countries.filter((country) => {
+                    return re.test(country.name) || re.test(country.capital);
+                });
+                resolve(result);
+            });
+        },
+        [countries]
+    );
+
+    const optionRenderer = useCallback(function (country: Country) {
+        return <OptionCountry country={country} />;
+    }, []);
+
     return (
         <div>
             <h5>Normal</h5>
@@ -45,18 +65,8 @@ export function Application() {
             <Combobox
                 displayField="name"
                 queryMode="remote"
-                onRemoteQuery={function (query: string) {
-                    return new Promise(function (resolve, reject) {
-                        setTimeout(function () {
-                            resolve(
-                                Array.from(query).map((name, index) => ({
-                                    name,
-                                    index,
-                                }))
-                            );
-                        }, 5000);
-                    });
-                }}
+                onRemoteQuery={remoteQuery}
+                optionRenderer={optionRenderer}
                 hideTrigger
             />
         </div>
