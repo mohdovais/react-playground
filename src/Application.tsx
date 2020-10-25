@@ -29,7 +29,7 @@ export function Application() {
     const [remoteData, setRemoteData] = useState([]);
 
     useEffect(() => {
-        fetch('/data/countries.json')
+        fetch('data/countries.json')
             .then((response) => response.json())
             .then(setCountries);
     }, []);
