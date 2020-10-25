@@ -3,7 +3,9 @@
     "version": "1.0.0",
     "description": "",
     "scripts": {
+        "prebuild": "rm -rf dist",
         "build": "rollup -c",
+        "prewatch": "rm -rf dist",
         "watch": "rollup -c -w",
         "lint": "eslint src packages  --fix",
         "test": "echo \"Error: no test specified\" && exit 1"
