@@ -5,7 +5,7 @@ import React, {
     useEffect,
     memo,
 } from '../utils/react';
-import ListBox from './listbox';
+import ListBox, { OptionRenderer } from './listbox';
 import { usePickerPosition } from './use-position';
 import { comboboxReducer, initialState, Json } from './combobox.store';
 import { useComboboxActions } from './use-actions';
@@ -25,12 +25,14 @@ export interface ComboboxCommonProps<T> {
     displayField?: string;
     valueField?: string;
     onChange?: (selection?: T) => void;
-    optionRenderer?: (record: T) => JSX.Element | string;
+    optionRenderer?: OptionRenderer<T>;
     displayRenderer?: (record: T) => JSX.Element | string;
     hideTrigger?: boolean;
     disabled?: boolean;
     readOnly?: boolean;
     className?: string;
+    forceSelection?: boolean;
+    placeholder?: string;
 }
 
 export interface ComboboxLocalProps<T> extends ComboboxCommonProps<T> {
@@ -62,10 +64,12 @@ function Combobox(props: ComboboxProps<Json>) {
         queryMode = 'local',
         displayField = 'text',
         className = '',
+        forceSelection = true,
         data,
         hideTrigger,
         disabled,
         readOnly,
+        placeholder,
         onChange,
         onRemoteQuery,
         optionRenderer,
@@ -81,6 +85,7 @@ function Combobox(props: ComboboxProps<Json>) {
     const {
         toggle,
         select,
+        collapse,
         handleKeys,
         handleRemoteSearch,
         handleLocalSearch,
@@ -146,15 +151,11 @@ function Combobox(props: ComboboxProps<Json>) {
         }
     }, [selection, onChange]);
 
+    const x =
+        $combobox + ' ' + className + (waiting ? ' wating ' + $waiting : '');
+
     return (
-        <div
-            className={
-                $combobox +
-                ' ' +
-                className +
-                (waiting ? ' wating ' + $waiting : '')
-            }
-            ref={comboboxRef}>
+        <div className={x} ref={comboboxRef}>
             <div
                 className={$input_wrapper}
                 role="combobox"
@@ -172,6 +173,7 @@ function Combobox(props: ComboboxProps<Json>) {
                     ref={inputRef}
                     disabled={disabled}
                     readOnly={readOnly}
+                    placeholder={placeholder}
                 />
                 {hideTrigger ? null : (
                     <div

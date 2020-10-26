@@ -1,2 +1,78 @@
-import{r as e,a as t}from"./vendor-3e966d15.js";import{m as n,u as a,a as r,b as l,C as m}from"./framework-d7795b14.js";var c=n((function({country:t}){return e.createElement("div",{className:"x-a-a"},e.createElement("img",{src:t.flag,className:"x-a-bb"}),e.createElement("div",{className:"x-a-cc"},e.createElement("div",null,t.name),e.createElement("div",{className:"x-a-dd"},t.capital)))}));function i(){const[t,n]=a([]),[i,o]=a([]);r((()=>{fetch("data/countries.json").then((e=>e.json())).then(n)}),[]);const d=l((function(e){return""===(e=e.trim())?[]:new Promise((function(n,a){const r=new RegExp(e,"i");n(t.filter((e=>r.test(e.name)||r.test(e.capital))))}))}),[t]),s=l((function(t){return e.createElement(c,{country:t})}),[]);return e.createElement("div",null,e.createElement("h5",null,"Normal"),e.createElement(m,{data:t,displayField:"name"}),e.createElement("h5",null,"Read Only"),e.createElement(m,{readOnly:!0,data:t,displayField:"name"}),e.createElement("h5",null,"Disabled"),e.createElement(m,{disabled:!0,data:t,displayField:"name"}),e.createElement("h5",null,"Search"),e.createElement(m,{displayField:"name",queryMode:"remote",onRemoteQuery:d,optionRenderer:s,hideTrigger:!0}))}var o={render:function(n){t.render(e.createElement(i,null),n)},unmount:function(e){t.unmountComponentAtNode(e)}};export default o;
+import { r as react, a as reactDom } from './vendor-57b36b2c.js';
+import { m as memo, u as useState, a as useEffect, b as useCallback, C as Combobox } from './framework-e0591300.js';
+
+var wrapper = "option-country-module__wrapper___31TMw";
+var flag = "option-country-module__flag___2cNdo";
+var details = "option-country-module__details___dh_M_";
+var capital = "option-country-module__capital___2axr3";
+
+function CountryOption({country}) {
+  return /* @__PURE__ */ react.createElement("div", {
+    className: wrapper
+  }, /* @__PURE__ */ react.createElement("img", {
+    src: country.flag,
+    className: flag
+  }), /* @__PURE__ */ react.createElement("div", {
+    className: details
+  }, /* @__PURE__ */ react.createElement("div", null, country.name), /* @__PURE__ */ react.createElement("div", {
+    className: capital
+  }, country.capital)));
+}
+var OptionCountry = memo(CountryOption);
+
+function Application() {
+  const [countries, setCountries] = useState([]);
+  const [remoteData, setRemoteData] = useState([]);
+  useEffect(() => {
+    fetch("data/countries.json").then((response) => response.json()).then(setCountries);
+  }, []);
+  const remoteQuery = useCallback(function(query) {
+    query = query.trim();
+    if (query === "")
+      return [];
+    return new Promise(function(resolve, reject) {
+      const re = new RegExp(query, "i");
+      const result = countries.filter((country) => {
+        return re.test(country.name) || re.test(country.capital);
+      });
+      resolve(result);
+    });
+  }, [countries]);
+  const optionRenderer = useCallback(function(country) {
+    return /* @__PURE__ */ react.createElement(OptionCountry, {
+      country
+    });
+  }, []);
+  return /* @__PURE__ */ react.createElement("div", null, /* @__PURE__ */ react.createElement("h5", null, "Normal"), /* @__PURE__ */ react.createElement(Combobox, {
+    data: countries,
+    displayField: "name"
+  }), /* @__PURE__ */ react.createElement("h5", null, "Read Only"), /* @__PURE__ */ react.createElement(Combobox, {
+    readOnly: true,
+    data: countries,
+    displayField: "name"
+  }), /* @__PURE__ */ react.createElement("h5", null, "Disabled"), /* @__PURE__ */ react.createElement(Combobox, {
+    disabled: true,
+    data: countries,
+    displayField: "name"
+  }), /* @__PURE__ */ react.createElement("h5", null, "Search"), /* @__PURE__ */ react.createElement(Combobox, {
+    displayField: "name",
+    queryMode: "remote",
+    onRemoteQuery: remoteQuery,
+    optionRenderer,
+    hideTrigger: true
+  }));
+}
+
+function render(container) {
+  reactDom.render(/* @__PURE__ */ react.createElement(Application, null), container);
+}
+function unmount(container) {
+  reactDom.unmountComponentAtNode(container);
+}
+var app = {
+  render,
+  unmount
+};
+
+export default app;
 //# sourceMappingURL=app.js.map

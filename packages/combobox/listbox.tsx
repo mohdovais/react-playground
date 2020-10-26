@@ -1,13 +1,15 @@
 import React, { memo, useEffect } from '../utils/react';
 import { ensureArray } from '../utils/array';
-import { hasOwnProperty } from '../utils/object';
 import { Json } from './combobox.store';
 import {
     listbox as $listbox,
     option as $option,
     focus as $focus,
     selected as $selected,
+    _default as $default,
 } from './listbox.module.css';
+
+export type OptionRenderer<T> = React.Component<ListBoxItemContentProps<T>>;
 
 export interface ListBoxProps<T> {
     className?: string;
@@ -19,8 +21,44 @@ export interface ListBoxProps<T> {
     focusIndex: number;
     expanded: boolean;
     style: React.CSSProperties;
-    optionRenderer?: (record: T) => JSX.Element | string;
+    optionRenderer?: OptionRenderer<T>;
 }
+
+export interface ListBoxItemProps {
+    id: string;
+    className: string;
+    children: any;
+    onClick: (event: React.MouseEvent<HTMLLIElement, MouseEvent>) => void;
+}
+
+export interface ListBoxItemContentProps<T> {
+    record: T;
+    selected: boolean;
+    displayField: string;
+}
+
+function ListBoxItem(props: ListBoxItemProps) {
+    const { id, onClick, className, children } = props;
+    return (
+        <li
+            role="option"
+            id={id}
+            className={$option + ' ' + className}
+            onClick={onClick}>
+            {children}
+        </li>
+    );
+}
+
+function ListBoxItemContent<T extends Json>({
+    record,
+    displayField,
+}: ListBoxItemContentProps<T>) {
+    return <div className={$default}>{record[displayField]}</div>;
+}
+
+const ListBoxItemMemo = memo(ListBoxItem);
+const ListBoxItemContentMemo = memo(ListBoxItemContent);
 
 function ListBox(props: ListBoxProps<Json>) {
     const {
@@ -37,6 +75,10 @@ function ListBox(props: ListBoxProps<Json>) {
     } = props;
 
     const idPrefx = id + '-option-';
+    const OptionRenderer =
+        typeof optionRenderer === 'function'
+            ? optionRenderer
+            : ListBoxItemContentMemo;
 
     useEffect(() => {
         if (focusIndex > -1) {
@@ -47,6 +89,8 @@ function ListBox(props: ListBoxProps<Json>) {
         }
     }, [focusIndex]);
 
+    const items = ensureArray<Json>(data);
+
     return (
         <ul
             id={id}
@@ -55,24 +99,29 @@ function ListBox(props: ListBoxProps<Json>) {
             style={style}
             tabIndex={-1}>
             {expanded
-                ? ensureArray<Json>(data).map((item, index) => (
-                      <li
-                          key={idPrefx + index}
-                          role="option"
-                          id={idPrefx + index}
-                          className={
-                              $option +
-                              (focusIndex === index ? ' ' + $focus : '') +
-                              (selected === item ? ' ' + $selected : '')
-                          }
-                          onClick={() => onSelect(item)}>
-                          {typeof optionRenderer === 'function'
-                              ? optionRenderer(item)
-                              : hasOwnProperty(item, displayField)
-                              ? String(item[displayField])
-                              : null}
-                      </li>
-                  ))
+                ? items.map((item, index) => {
+                      const liId = idPrefx + index;
+                      const isSelected = selected === item;
+                      const liClassName = [
+                          focusIndex === index ? 'focus ' + $focus : '',
+                          isSelected ? 'selected ' + $selected : '',
+                      ]
+                          .filter(Boolean)
+                          .join(' ');
+                      return (
+                          <ListBoxItemMemo
+                              key={liId}
+                              id={liId}
+                              className={liClassName}
+                              onClick={() => onSelect(item)}>
+                              <OptionRenderer
+                                  record={item}
+                                  selected={isSelected}
+                                  displayField={displayField}
+                              />
+                          </ListBoxItemMemo>
+                      );
+                  })
                 : null}
         </ul>
     );
