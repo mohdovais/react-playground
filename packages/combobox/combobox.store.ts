@@ -11,6 +11,7 @@ export const ACTION_TYPE_SELECT = 4;
 export const ACTION_TYPE_SET_DATA = 5;
 export const ACTION_TYPE_LOCAL_SEARCH = 6;
 export const ACTION_TYPE_SET_WAITING = 7;
+export const ACTION_TYPE_SET_ACTIVE_DECENDENT = 8;
 
 export const initialState = {
     id: '',
@@ -23,6 +24,7 @@ export const initialState = {
         key: '',
         count: 0,
     },
+    activeDescendant: '',
 };
 
 function keyboardNavigation(nav: KeyboardNavType, key: string) {
@@ -40,7 +42,7 @@ export function comboboxReducer<T extends Json>(
         case ACTION_TYPE_COLLAPSE:
             return extend(state, {
                 expanded: false,
-                focusIndex: -1,
+                activeDescendant: '',
             });
 
         case ACTION_TYPE_EXPAND:
@@ -64,7 +66,7 @@ export function comboboxReducer<T extends Json>(
         case ACTION_TYPE_SELECT:
             return extend(state, {
                 expanded: false,
-                focusIndex: -1,
+                activeDescendant: '',
                 range: state.data,
                 selection: action.selection,
             });
@@ -90,6 +92,11 @@ export function comboboxReducer<T extends Json>(
         case ACTION_TYPE_SET_WAITING:
             return extend(state, {
                 waiting: action.waiting,
+            });
+
+        case ACTION_TYPE_SET_ACTIVE_DECENDENT:
+            return extend(state, {
+                activeDescendant: action.id,
             });
     }
 

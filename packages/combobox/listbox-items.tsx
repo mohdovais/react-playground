@@ -12,8 +12,9 @@ import {
     ListBoxItemContentProps,
     ListBoxItemProps,
     ListBoxProps,
-    KeyboardNavType,
 } from 'Combobox';
+import { emptyFn } from '../utils/function';
+import { KEY_ARROW_DOWN, KEY_ARROW_UP, KEY_ENTER } from './constant';
 
 function scrollIntoView(el: HTMLElement | null, smooth = true) {
     if (el == null) return;
@@ -48,7 +49,14 @@ const ListBoxItem = memo(function ListBoxItem<T>(props: ListBoxItemProps<T>) {
 });
 
 export function ListBoxItems(props: ListBoxProps<Json>) {
-    const { id, data, keyboard, itemRenderer, onSelect } = props;
+    const {
+        id,
+        data,
+        keyboard,
+        itemRenderer,
+        onSelect,
+        onKeyFocus = emptyFn,
+    } = props;
     const selection = ensureArray(props.selection);
 
     const totalItems = data.length;
@@ -56,21 +64,21 @@ export function ListBoxItems(props: ListBoxProps<Json>) {
     const firstSelectedIndex = data.indexOf(selection[0]);
     const firstSelectedId =
         firstSelectedIndex === -1 ? '' : idPrefx + firstSelectedIndex;
+    const key = keyboard ? keyboard.key : '';
 
     const OptionRenderer = itemRenderer;
 
     const [focusIndex, disptachKeyboard] = useReducer(function (
         index: number,
-        action: KeyboardNavType
+        action: string
     ) {
         let _index = index;
-        switch (action.key) {
-            case 'ArrowUp':
+        switch (action) {
+            case KEY_ARROW_UP:
                 _index = index === -1 ? totalItems - 1 : index - 1;
                 break;
-            case 'ArrowDown':
+            case KEY_ARROW_DOWN:
                 _index = index === -1 ? 0 : index + 1;
-                break;
         }
         return _index === index
             ? index
@@ -80,9 +88,15 @@ export function ListBoxItems(props: ListBoxProps<Json>) {
     },
     firstSelectedIndex);
 
+    if (key === KEY_ENTER && focusIndex !== -1) {
+        onSelect(data[focusIndex]);
+    }
+
     useEffect(() => {
-        if (keyboard && keyboard.key) disptachKeyboard(keyboard);
-    }, [keyboard]);
+        if (key && key !== KEY_ENTER) {
+            disptachKeyboard(key);
+        }
+    }, [keyboard, key]);
 
     useEffect(() => {
         if (firstSelectedId !== '') {
@@ -92,6 +106,7 @@ export function ListBoxItems(props: ListBoxProps<Json>) {
 
     useEffect(() => {
         if (focusIndex !== -1) {
+            onKeyFocus(idPrefx + focusIndex);
             scrollIntoView(
                 document.getElementById(idPrefx + focusIndex),
                 false

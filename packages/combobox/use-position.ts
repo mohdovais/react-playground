@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from '../utils/react';
 import { win, addEventListener, removeEventListener } from '../utils/dom';
+import { EVENT_RESIZE, EVENT_SCROLL } from './constant';
 
-const displayNone = {
-    display: 'none',
-};
+const none = {};
 
 function getPosition(el: HTMLDivElement | null): React.CSSProperties {
     if (el == null) {
-        return displayNone;
+        return none;
     }
     const viewportHeight = win.innerHeight;
     const { top, bottom, height } = el.getBoundingClientRect();
 
     if (top < 0 || top > viewportHeight) {
-        return displayNone;
+        return none;
     }
 
     const bottomSpace = viewportHeight - bottom;
@@ -49,18 +48,18 @@ export function usePickerPosition(
                 });
             }
         }
-        addEventListener('resize', doCalculate);
-        addEventListener('scroll', doCalculate);
+        addEventListener(EVENT_RESIZE, doCalculate);
+        addEventListener(EVENT_SCROLL, doCalculate);
 
         if (calculate) {
             doCalculate();
         } else {
-            setPosition(displayNone);
+            setPosition(none);
         }
 
         return () => {
-            removeEventListener('resize', doCalculate);
-            removeEventListener('scroll', doCalculate);
+            removeEventListener(EVENT_RESIZE, doCalculate);
+            removeEventListener(EVENT_SCROLL, doCalculate);
         };
     }, [calculate, current]);
 

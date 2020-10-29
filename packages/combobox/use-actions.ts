@@ -9,7 +9,9 @@ import {
     ACTION_TYPE_SET_DATA,
     ACTION_TYPE_TOGGLE,
     ACTION_TYPE_SET_WAITING,
+    ACTION_TYPE_SET_ACTIVE_DECENDENT,
 } from './combobox.store';
+import { KEY_ARROW_DOWN, KEY_ARROW_UP, KEY_ENTER } from './constant';
 import { ComboboxAction } from 'Combobox';
 
 export function useComboboxActions<Json>(
@@ -37,26 +39,6 @@ export function useComboboxActions<Json>(
         deps
     );
 
-    const handleKeys = useCallback(function (
-        event: React.KeyboardEvent<HTMLInputElement>
-    ) {
-        switch (event.key) {
-            case 'ArrowDown':
-            case 'ArrowUp':
-            case 'Enter':
-                dispatch({
-                    type: ACTION_TYPE_KEYBOARD_NAVIGATION,
-                    key: event.key,
-                });
-                break;
-
-            case 'Escape':
-                collapse();
-                break;
-        }
-    },
-    deps);
-
     const handleLocalSearch = useCallback(
         (query: string) => dispatch({ type: ACTION_TYPE_LOCAL_SEARCH, query }),
         deps
@@ -72,6 +54,32 @@ export function useComboboxActions<Json>(
         deps
     );
 
+    const setActiveDecendent = useCallback(
+        (id: string) =>
+            dispatch({ type: ACTION_TYPE_SET_ACTIVE_DECENDENT, id }),
+        deps
+    );
+
+    const handleKeys = useCallback(function (
+        event: React.KeyboardEvent<HTMLInputElement>
+    ) {
+        switch (event.key) {
+            case KEY_ARROW_DOWN:
+            case KEY_ARROW_UP:
+            case KEY_ENTER:
+                dispatch({
+                    type: ACTION_TYPE_KEYBOARD_NAVIGATION,
+                    key: event.key,
+                });
+                break;
+
+            case 'Escape':
+                collapse();
+                break;
+        }
+    },
+    deps);
+
     return {
         expand,
         collapse,
@@ -81,5 +89,6 @@ export function useComboboxActions<Json>(
         handleLocalSearch,
         setData,
         setWaiting,
+        setActiveDecendent,
     };
 }

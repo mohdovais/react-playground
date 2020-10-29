@@ -19,6 +19,7 @@ function ListBox(props: ListBoxProps<Json>) {
         itemRenderer,
         onSelect,
         selection,
+        onKeyFocus
     } = props;
 
     const handleSelect = useCallback((item) => onSelect(item), [onSelect]);
@@ -37,6 +38,7 @@ function ListBox(props: ListBoxProps<Json>) {
                     keyboard={keyboard}
                     itemRenderer={itemRenderer}
                     onSelect={handleSelect}
+                    onKeyFocus={onKeyFocus}
                     selection={selection}
                 />
             ) : null}

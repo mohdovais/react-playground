@@ -7,6 +7,7 @@ declare module 'Combobox' {
     export const ACTION_TYPE_SET_DATA = 5;
     export const ACTION_TYPE_LOCAL_SEARCH = 6;
     export const ACTION_TYPE_SET_WAITING = 7;
+    export const ACTION_TYPE_SET_ACTIVE_DECENDENT = 8;
 
     export type Json = {
         [prop: string]: string | number | boolean | Date | Json | Json[];
@@ -20,44 +21,80 @@ declare module 'Combobox' {
         data: T[];
         range: T[];
         keyboard: KeyboardNavType;
+        activeDescendant: string;
     }
 
-    export interface ComboboxActionCollpase {
+    export interface ComboboxCommonProps<T> {
+        displayField?: string;
+        valueField?: string;
+        onChange?: (selection: T[]) => void;
+        optionRenderer?: OptionRendererType<T>;
+        displayRenderer?: (record: T) => JSX.Element | string;
+        hideTrigger?: boolean;
+        disabled?: boolean;
+        readOnly?: boolean;
+        className?: string;
+        forceSelection?: boolean;
+        placeholder?: string;
+    }
+
+    export interface ComboboxLocalProps<T> extends ComboboxCommonProps<T> {
+        queryMode?: 'local';
+        data: T[];
+        onRemoteQuery?: undefined;
+    }
+
+    export interface ComboboxRemoteProps<T> extends ComboboxCommonProps<T> {
+        queryMode: 'remote';
+        data?: undefined;
+        onRemoteQuery: (search: string) => T[] | Promise<T[]>;
+    }
+
+    export type ComboboxProps<T> =
+        | ComboboxLocalProps<T>
+        | ComboboxRemoteProps<T>;
+
+    interface ComboboxActionCollpase {
         type: typeof ACTION_TYPE_COLLAPSE;
     }
 
-    export interface ComboboxActionExpand {
+    interface ComboboxActionExpand {
         type: typeof ACTION_TYPE_EXPAND;
     }
 
-    export interface ComboboxActionToggle {
+    interface ComboboxActionToggle {
         type: typeof ACTION_TYPE_TOGGLE;
     }
 
-    export interface CompobobxActionKeyboardNavigation {
+    interface CompobobxActionKeyboardNavigation {
         type: typeof ACTION_TYPE_KEYBOARD_NAVIGATION;
         key: string;
     }
 
-    export interface ComboboxActionSelect<T> {
+    interface ComboboxActionSelect<T> {
         type: typeof ACTION_TYPE_SELECT;
         selection: T;
     }
 
-    export interface ComboboxActionSetData<T> {
+    interface ComboboxActionSetData<T> {
         type: typeof ACTION_TYPE_SET_DATA;
         data: T[];
         expand: boolean;
     }
 
-    export interface ComboboxActionSearch {
+    interface ComboboxActionSearch {
         type: typeof ACTION_TYPE_LOCAL_SEARCH;
         query: string;
     }
 
-    export interface ComboboxActionSetWating {
+    interface ComboboxActionSetWating {
         type: typeof ACTION_TYPE_SET_WAITING;
         waiting: boolean;
+    }
+
+    interface ComboboxActionsetActiveDecendent {
+        type: typeof ACTION_TYPE_SET_ACTIVE_DECENDENT;
+        id: string;
     }
 
     export type ComboboxAction<T> =
@@ -68,7 +105,8 @@ declare module 'Combobox' {
         | ComboboxActionSelect<T>
         | ComboboxActionSetData<T>
         | ComboboxActionSearch
-        | ComboboxActionSetWating;
+        | ComboboxActionSetWating
+        | ComboboxActionsetActiveDecendent;
 
     export interface ListBoxItemContentProps<T> {
         record: T;
@@ -100,6 +138,7 @@ declare module 'Combobox' {
         expanded?: boolean;
         style?: React.CSSProperties;
         keyboard?: KeyboardNavType;
+        onKeyFocus?: (focusElementId: string) => void;
     }
 
     export interface ListBoxItemProps<T> {

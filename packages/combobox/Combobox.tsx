@@ -1,3 +1,4 @@
+/// <reference path="combobox.d.ts" />
 import React, {
     useCallback,
     useRef,
@@ -6,15 +7,12 @@ import React, {
     useMemo,
     memo,
 } from '../utils/react';
-import ListBox, {
-    OptionRendererType,
-    listBoxItemContentFactory,
-} from './listbox';
+import ListBox, { listBoxItemContentFactory } from './listbox';
 import { usePickerPosition } from './use-position';
-import { comboboxReducer, initialState, Json } from './combobox.store';
+import { comboboxReducer, initialState } from './combobox.store';
 import { useComboboxActions } from './use-actions';
 import { randomId } from '../utils/common';
-import { debounced } from '../utils/function';
+import { debounced, emptyFn } from '../utils/function';
 import {
     combobox as $combobox,
     input_wrapper as $input_wrapper,
@@ -24,34 +22,7 @@ import {
     waiting as $waiting,
 } from './combobox.module.scss';
 import { extend } from '../utils/object';
-
-export interface ComboboxCommonProps<T> {
-    displayField?: string;
-    valueField?: string;
-    onChange?: (selection: T[]) => void;
-    optionRenderer?: OptionRendererType<T>;
-    displayRenderer?: (record: T) => JSX.Element | string;
-    hideTrigger?: boolean;
-    disabled?: boolean;
-    readOnly?: boolean;
-    className?: string;
-    forceSelection?: boolean;
-    placeholder?: string;
-}
-
-export interface ComboboxLocalProps<T> extends ComboboxCommonProps<T> {
-    queryMode?: 'local';
-    data: T[];
-    onRemoteQuery?: undefined;
-}
-
-export interface ComboboxRemoteProps<T> extends ComboboxCommonProps<T> {
-    queryMode: 'remote';
-    data?: undefined;
-    onRemoteQuery: (search: string) => T[] | Promise<T[]>;
-}
-
-export type ComboboxProps<T> = ComboboxLocalProps<T> | ComboboxRemoteProps<T>;
+import { ComboboxProps, Json } from 'Combobox';
 
 function focus(ref: React.RefObject<HTMLElement>) {
     let el = ref.current;
@@ -63,7 +34,6 @@ function focus(ref: React.RefObject<HTMLElement>) {
 function Combobox(props: ComboboxProps<Json>) {
     const comboboxRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-    const activeDescendantId = '';
 
     const {
         queryMode = 'local',
@@ -75,8 +45,8 @@ function Combobox(props: ComboboxProps<Json>) {
         disabled,
         readOnly,
         placeholder,
-        onChange,
-        onRemoteQuery,
+        onChange = emptyFn,
+        onRemoteQuery = emptyFn,
         optionRenderer,
         displayRenderer,
     } = props;
@@ -96,14 +66,23 @@ function Combobox(props: ComboboxProps<Json>) {
     const {
         toggle,
         select,
-        collapse,
         handleKeys,
         handleLocalSearch,
         setData,
         setWaiting,
+        setActiveDecendent,
     } = useComboboxActions(dispatch);
 
-    const { id, expanded, selection, range, waiting, keyboard } = state;
+    const {
+        id,
+        expanded,
+        selection,
+        range,
+        waiting,
+        keyboard,
+        activeDescendant,
+    } = state;
+
     const pickerStyle = usePickerPosition(comboboxRef, expanded);
     const pickerId = id + '-picker';
 
@@ -120,10 +99,8 @@ function Combobox(props: ComboboxProps<Json>) {
                 handleLocalSearch(text);
             } else {
                 setWaiting(true);
-                Promise.resolve(
-                    typeof onRemoteQuery === 'function' && onRemoteQuery(text)
-                ).then((data) => {
-                    data !== false && setData(data, true);
+                Promise.resolve(onRemoteQuery(text)).then((data) => {
+                    data && setData(data, true);
                 });
             }
         }),
@@ -137,9 +114,7 @@ function Combobox(props: ComboboxProps<Json>) {
     }, [data]);
 
     useEffect(() => {
-        if (typeof onChange === 'function') {
-            onChange(selection);
-        }
+        onChange(selection);
     }, [selection, onChange]);
 
     const cls =
@@ -157,7 +132,7 @@ function Combobox(props: ComboboxProps<Json>) {
                     type="text"
                     aria-autocomplete="both"
                     aria-controls={pickerId}
-                    aria-activedescendant={activeDescendantId}
+                    aria-activedescendant={activeDescendant}
                     onKeyDown={handleKeys}
                     onInput={handleInput}
                     className={$input}
@@ -187,6 +162,7 @@ function Combobox(props: ComboboxProps<Json>) {
                 className={$picker}
                 style={pickerStyle}
                 keyboard={keyboard}
+                onKeyFocus={setActiveDecendent}
             />
         </div>
     );
