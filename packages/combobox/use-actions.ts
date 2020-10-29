@@ -1,104 +1,75 @@
+/// <reference path="combobox.d.ts" />
 import { useCallback } from '../utils/react';
 import {
     ACTION_TYPE_COLLAPSE,
     ACTION_TYPE_EXPAND,
-    ACTION_TYPE_KEY_ARROW_DOWN,
-    ACTION_TYPE_KEY_ARROW_UP,
-    ACTION_TYPE_KEY_ENTER,
+    ACTION_TYPE_KEYBOARD_NAVIGATION,
     ACTION_TYPE_LOCAL_SEARCH,
     ACTION_TYPE_SELECT,
     ACTION_TYPE_SET_DATA,
-    ACTION_TYPE_SET_DATA_AND_EXPAND,
     ACTION_TYPE_TOGGLE,
     ACTION_TYPE_SET_WAITING,
-    ComboboxAction,
 } from './combobox.store';
+import { ComboboxAction } from 'Combobox';
 
 export function useComboboxActions<Json>(
     dispatch: React.Dispatch<ComboboxAction<Json>>
 ) {
+    const deps = [dispatch];
+
     const expand = useCallback(
-        function () {
-            dispatch({ type: ACTION_TYPE_EXPAND });
-        },
-        [dispatch]
+        () => dispatch({ type: ACTION_TYPE_EXPAND }),
+        deps
     );
 
     const collapse = useCallback(
-        function () {
-            dispatch({ type: ACTION_TYPE_COLLAPSE });
-        },
-        [dispatch]
+        () => dispatch({ type: ACTION_TYPE_COLLAPSE }),
+        deps
     );
 
     const toggle = useCallback(
-        function () {
-            dispatch({ type: ACTION_TYPE_TOGGLE });
-        },
-        [dispatch]
+        () => dispatch({ type: ACTION_TYPE_TOGGLE }),
+        deps
     );
 
     const select = useCallback(
-        function (selection: Json) {
-            dispatch({
-                type: ACTION_TYPE_SELECT,
-                selection,
-            });
-        },
-        [dispatch]
+        (selection: Json) => dispatch({ type: ACTION_TYPE_SELECT, selection }),
+        deps
     );
 
-    const handleKeys = useCallback(
-        function (event: React.KeyboardEvent<HTMLInputElement>) {
-            switch (event.key) {
-                case 'ArrowDown': {
-                    dispatch({ type: ACTION_TYPE_KEY_ARROW_DOWN });
-                    break;
-                }
-                case 'ArrowUp': {
-                    dispatch({ type: ACTION_TYPE_KEY_ARROW_UP });
-                    break;
-                }
-                case 'Escape':
-                    collapse();
-                    break;
-                case 'Enter':
-                    dispatch({ type: ACTION_TYPE_KEY_ENTER });
-                    break;
-            }
-        },
-        [dispatch]
-    );
+    const handleKeys = useCallback(function (
+        event: React.KeyboardEvent<HTMLInputElement>
+    ) {
+        switch (event.key) {
+            case 'ArrowDown':
+            case 'ArrowUp':
+            case 'Enter':
+                dispatch({
+                    type: ACTION_TYPE_KEYBOARD_NAVIGATION,
+                    key: event.key,
+                });
+                break;
+
+            case 'Escape':
+                collapse();
+                break;
+        }
+    },
+    deps);
 
     const handleLocalSearch = useCallback(
-        function (query: string) {
-            dispatch({
-                type: ACTION_TYPE_LOCAL_SEARCH,
-                query,
-            });
-        },
-        [dispatch]
+        (query: string) => dispatch({ type: ACTION_TYPE_LOCAL_SEARCH, query }),
+        deps
     );
 
-    const setData = useCallback(
-        function (data: Json[]) {
-            dispatch({ type: ACTION_TYPE_SET_DATA, data });
-        },
-        [dispatch]
-    );
-
-    const handleRemoteSearch = useCallback(
-        function (data: Json[]) {
-            dispatch({ type: ACTION_TYPE_SET_DATA_AND_EXPAND, data });
-        },
-        [dispatch]
-    );
+    const setData = useCallback((data: Json[], expand = false) => {
+        dispatch({ type: ACTION_TYPE_SET_DATA, data, expand });
+    }, deps);
 
     const setWaiting = useCallback(
-        function (waiting: boolean) {
-            dispatch({ type: ACTION_TYPE_SET_WAITING, waiting });
-        },
-        [dispatch]
+        (waiting: boolean) =>
+            dispatch({ type: ACTION_TYPE_SET_WAITING, waiting }),
+        deps
     );
 
     return {
@@ -109,7 +80,6 @@ export function useComboboxActions<Json>(
         handleKeys,
         handleLocalSearch,
         setData,
-        handleRemoteSearch,
-        setWaiting
+        setWaiting,
     };
 }

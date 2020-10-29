@@ -3,9 +3,13 @@ import React, {
     useRef,
     useReducer,
     useEffect,
+    useMemo,
     memo,
 } from '../utils/react';
-import ListBox, { OptionRenderer } from './listbox';
+import ListBox, {
+    OptionRendererType,
+    listBoxItemContentFactory,
+} from './listbox';
 import { usePickerPosition } from './use-position';
 import { comboboxReducer, initialState, Json } from './combobox.store';
 import { useComboboxActions } from './use-actions';
@@ -24,8 +28,8 @@ import { extend } from '../utils/object';
 export interface ComboboxCommonProps<T> {
     displayField?: string;
     valueField?: string;
-    onChange?: (selection?: T) => void;
-    optionRenderer?: OptionRenderer<T>;
+    onChange?: (selection: T[]) => void;
+    optionRenderer?: OptionRendererType<T>;
     displayRenderer?: (record: T) => JSX.Element | string;
     hideTrigger?: boolean;
     disabled?: boolean;
@@ -59,6 +63,7 @@ function focus(ref: React.RefObject<HTMLElement>) {
 function Combobox(props: ComboboxProps<Json>) {
     const comboboxRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+    const activeDescendantId = '';
 
     const {
         queryMode = 'local',
@@ -76,6 +81,12 @@ function Combobox(props: ComboboxProps<Json>) {
         displayRenderer,
     } = props;
 
+    const optionRendererMemo = useMemo(() => {
+        return optionRenderer == null
+            ? listBoxItemContentFactory(displayField)
+            : optionRenderer;
+    }, [displayField, optionRenderer]);
+
     const [state, dispatch] = useReducer(
         comboboxReducer,
         initialState,
@@ -87,17 +98,14 @@ function Combobox(props: ComboboxProps<Json>) {
         select,
         collapse,
         handleKeys,
-        handleRemoteSearch,
         handleLocalSearch,
         setData,
         setWaiting,
     } = useComboboxActions(dispatch);
 
-    const { id, expanded, selection, range, focusIndex, waiting } = state;
+    const { id, expanded, selection, range, waiting, keyboard } = state;
     const pickerStyle = usePickerPosition(comboboxRef, expanded);
     const pickerId = id + '-picker';
-    const activeDescendantId =
-        expanded && focusIndex === -1 ? '' : pickerId + '-option-' + focusIndex;
 
     const handleTriggerClick = useCallback(() => {
         focus(inputRef);
@@ -115,17 +123,11 @@ function Combobox(props: ComboboxProps<Json>) {
                 Promise.resolve(
                     typeof onRemoteQuery === 'function' && onRemoteQuery(text)
                 ).then((data) => {
-                    data !== false && handleRemoteSearch(data);
+                    data !== false && setData(data, true);
                 });
             }
         }),
-        [
-            queryMode,
-            onRemoteQuery,
-            setWaiting,
-            handleLocalSearch,
-            handleRemoteSearch,
-        ]
+        [queryMode, onRemoteQuery, setWaiting, handleLocalSearch]
     );
 
     useEffect(() => {
@@ -135,27 +137,16 @@ function Combobox(props: ComboboxProps<Json>) {
     }, [data]);
 
     useEffect(() => {
-        const input = inputRef.current;
-        if (input) {
-            input.value = selection
-                ? typeof displayRenderer === 'function'
-                    ? displayRenderer(selection).toString()
-                    : selection[displayField].toString()
-                : '';
-        }
-    }, [selection, displayField, inputRef, displayRenderer]);
-
-    useEffect(() => {
         if (typeof onChange === 'function') {
             onChange(selection);
         }
     }, [selection, onChange]);
 
-    const x =
+    const cls =
         $combobox + ' ' + className + (waiting ? ' wating ' + $waiting : '');
 
     return (
-        <div className={x} ref={comboboxRef}>
+        <div className={cls} ref={comboboxRef}>
             <div
                 className={$input_wrapper}
                 role="combobox"
@@ -189,14 +180,13 @@ function Combobox(props: ComboboxProps<Json>) {
             <ListBox
                 id={pickerId}
                 data={range}
-                displayField={displayField}
-                focusIndex={focusIndex}
+                itemRenderer={optionRendererMemo}
                 expanded={expanded}
                 onSelect={select}
-                selected={selection}
-                optionRenderer={optionRenderer}
+                selection={selection}
                 className={$picker}
                 style={pickerStyle}
+                keyboard={keyboard}
             />
         </div>
     );

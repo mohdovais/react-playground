@@ -1,5 +1,10 @@
 .wrapper {
     display: flex;
+    padding: 10px;
+}
+
+.wrapper:hover {
+    background-color: #eee;
 }
 
 .flag {

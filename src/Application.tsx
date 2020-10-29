@@ -49,10 +49,6 @@ export function Application() {
         [countries]
     );
 
-    const optionRenderer = useCallback(function (country: Country) {
-        return <OptionCountry country={country} />;
-    }, []);
-
     return (
         <div>
             <h5>Normal</h5>
@@ -66,7 +62,7 @@ export function Application() {
                 displayField="name"
                 queryMode="remote"
                 onRemoteQuery={remoteQuery}
-                optionRenderer={optionRenderer}
+                optionRenderer={OptionCountry}
                 hideTrigger
             />
         </div>

@@ -29,3 +29,14 @@ input:disabled + .trigger {
     cursor: default;
     opacity: 0.5;
 }
+
+.picker {
+    position: absolute;
+    min-width: 100%;
+    width: max-content;
+    max-width: 95vw;
+}
+
+.waiting {
+    background-color: burlywood;
+}

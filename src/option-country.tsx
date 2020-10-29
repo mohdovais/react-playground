@@ -5,20 +5,21 @@ import {
     wrapper as $wrapper,
     flag as $flag,
     details as $details,
-    capital as $capital
+    capital as $capital,
 } from './option-country.module.css';
 
 type CountryOptionProps = {
-    country: Country;
+    record: Country;
+    selected: boolean;
 };
 
-export function CountryOption({ country }: CountryOptionProps) {
+export function CountryOption({ record, selected }: CountryOptionProps) {
     return (
         <div className={$wrapper}>
-            <img src={country.flag} className={$flag} />
+            <img src={record.flag} className={$flag} />
             <div className={$details}>
-                <div>{country.name}</div>
-                <div className={$capital}>{country.capital}</div>
+                <div>{record.name}</div>
+                <div className={$capital}>{record.capital}</div>
             </div>
         </div>
     );
