@@ -1,9 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect, useCallback } from '../packages/utils/react';
-import Combobox from '../packages/combobox';
-import OptionCountry from './option-country';
-import SimpleCombobox, { Option } from '../packages/comobobox-simple';
-import { OptGroup } from '../packages/comobobox-simple/combobox';
+import Combobox, { Option, OptGroup } from '../packages/comobobox';
 
 type Language = {
     code: string;
@@ -61,7 +58,7 @@ export function Application() {
 
     return (
         <div>
-            <SimpleCombobox onChange={console.log}>
+            <Combobox onChange={console.log}>
                 {Object.keys(regions).map((region) => (
                     <OptGroup key={region} label={region}>
                         {regions[region].map((country) => (
@@ -69,7 +66,7 @@ export function Application() {
                         ))}
                     </OptGroup>
                 ))}
-            </SimpleCombobox>
+            </Combobox>
         </div>
     );
 }

@@ -1,13 +1,8 @@
-import React, {
-    memo,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
-} from '../utils/react';
+import React, { memo, useEffect, useRef } from '../utils/react';
 import { usePickerPosition } from '../hook/use-position';
 import { useRandomId } from '../hook/use-random-id';
-import { emptyFn } from '../utils/function';
+import PickerContext from './context';
+import { usePickerState } from './state';
 import {
     reaper as $reaper,
     input as $input,
@@ -32,14 +27,8 @@ export interface PickerProps {
     children?: React.ReactElement;
     onChange?: CallableFunction;
     triggerIcon?: any;
+    onInput?: (event: React.FormEvent<HTMLInputElement>) => void;
 }
-
-export const PickerContext = React.createContext({
-    onClick: (value: any) => {
-        console.log('sfsdfsdfds');
-    },
-    setValue: (value: string) => {},
-});
 
 const TriggerIcon = memo(function TriggerIcon() {
     return (
@@ -66,7 +55,7 @@ function Picker(props: PickerProps) {
         id,
         multiple,
         name,
-        onChange,
+        onInput,
         placeholder,
         readOnly,
         required,
@@ -77,43 +66,18 @@ function Picker(props: PickerProps) {
 
     const ref = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+    const {
+        expanded,
+        value,
+        activeDescendant,
+        context,
+        handleKeyDown,
+    } = usePickerState({ multiple });
 
-    const randomId = useRandomId('combobox-');
+    const randomId = useRandomId('picker-');
     const componentId = id === undefined ? randomId : id;
-
     const pickerId = componentId + '-picker';
-
-    /* will be extracted in reducer */
-    const [expanded, setExpanded] = useState(false);
-    const [value, setValue] = useState('');
-    const listeners = useMemo(() => {
-        return {
-            onClick: function (selection: any) {
-                typeof onChange === 'function' && onChange(selection);
-            },
-            setValue: function(value: string){
-                if(!multiple){
-                    setExpanded(false);
-                }
-                setValue(value);
-            },
-        };
-    }, [onChange]);
-
     const pickerStyle = usePickerPosition(ref, expanded);
-    const activeDescendant = undefined;
-    const handleInput = emptyFn;
-    const handleKey = console.log;
-
-    const x = [
-        'ArrowDown',
-        'ArrowUp',
-        'ArrowRight',
-        'ArrowLeft',
-        'Space',
-        'Enter',
-    ];
-    //shiftKey //metaKey or ctrlKey
 
     useEffect(() => {
         if (autofocus) {
@@ -139,8 +103,8 @@ function Picker(props: PickerProps) {
                         aria-autocomplete={autocomplete}
                         aria-controls={pickerId}
                         aria-activedescendant={activeDescendant}
-                        onKeyDown={handleKey}
-                        onInput={handleInput}
+                        onKeyDown={handleKeyDown}
+                        onInput={onInput}
                         ref={inputRef}
                         disabled={disabled}
                         readOnly={readOnly}
@@ -167,7 +131,7 @@ function Picker(props: PickerProps) {
                 </div>
                 <div id={pickerId} className={$picker} style={pickerStyle}>
                     {expanded ? (
-                        <PickerContext.Provider value={listeners}>
+                        <PickerContext.Provider value={context}>
                             {children}
                         </PickerContext.Provider>
                     ) : null}

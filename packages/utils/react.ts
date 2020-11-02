@@ -11,3 +11,6 @@ export const forwardRef = React.forwardRef;
 export const useMemo = React.useMemo;
 export const Fragment = React.Fragment;
 export const useContext = React.useContext;
+export const Children = React.Children;
+export const isValidElement = React.isValidElement;
+export const createContext = React.createContext;
