@@ -13,6 +13,11 @@ export const ACTION_TYPE_LOCAL_SEARCH = 6;
 export const ACTION_TYPE_SET_WAITING = 7;
 export const ACTION_TYPE_SET_ACTIVE_DECENDENT = 8;
 
+const NO_KEY = {
+    key: '',
+    count: 0,
+};
+
 export const initialState = {
     id: '',
     expanded: false,
@@ -20,10 +25,7 @@ export const initialState = {
     selection: [],
     data: [],
     range: [],
-    keyboard: {
-        key: '',
-        count: 0,
-    },
+    keyboard: NO_KEY,
     activeDescendant: '',
 };
 
@@ -43,6 +45,7 @@ export function comboboxReducer<T extends Json>(
             return extend(state, {
                 expanded: false,
                 activeDescendant: '',
+                key: NO_KEY,
             });
 
         case ACTION_TYPE_EXPAND:

@@ -8,7 +8,7 @@ import React, {
     memo,
 } from '../utils/react';
 import ListBox, { listBoxItemContentFactory } from './listbox';
-import { usePickerPosition } from './use-position';
+import { usePickerPosition } from '../hook/use-position';
 import { comboboxReducer, initialState } from './combobox.store';
 import { useComboboxActions } from './use-actions';
 import { randomId } from '../utils/common';
@@ -39,7 +39,6 @@ function Combobox(props: ComboboxProps<Json>) {
         queryMode = 'local',
         displayField = 'text',
         className = '',
-        forceSelection = true,
         data,
         hideTrigger,
         disabled,
@@ -48,7 +47,6 @@ function Combobox(props: ComboboxProps<Json>) {
         onChange = emptyFn,
         onRemoteQuery = emptyFn,
         optionRenderer,
-        displayRenderer,
     } = props;
 
     const optionRendererMemo = useMemo(() => {
@@ -94,7 +92,7 @@ function Combobox(props: ComboboxProps<Json>) {
     const handleInput = useCallback(
         debounced((event: React.FormEvent<HTMLInputElement>) => {
             const input = event.target as HTMLInputElement;
-            const text = input.value;
+            const text = input.value.trim();
             if (queryMode === 'local') {
                 handleLocalSearch(text);
             } else {

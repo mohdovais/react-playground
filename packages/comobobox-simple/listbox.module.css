@@ -1,0 +1,43 @@
+.listbox {
+    box-sizing: border-box;
+    transform: translateZ(0px);
+}
+
+.listbox:not(:empty) {
+    border: 1px solid #ccc;
+    z-index: 1;
+    background-color: #fff;
+    box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14),
+        0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2);
+    overflow: auto;
+}
+
+.listbox,
+.option_group > ul {
+    margin: 0;
+    padding: 0;
+}
+
+.option_group > ul {
+    border-bottom: 1px solid #ccc;
+}
+
+.option_group_label {
+    display: block;
+    border-bottom: 1px solid #ccc;;
+}
+
+
+.option_group,
+.option {
+    list-style: none;
+}
+
+.option {
+    cursor: pointer;
+}
+
+.option + .option {
+    border-top: 1px solid #ccc;
+}
+

@@ -10,3 +10,4 @@ export const useEffect = React.useEffect;
 export const forwardRef = React.forwardRef;
 export const useMemo = React.useMemo;
 export const Fragment = React.Fragment;
+export const useContext = React.useContext;

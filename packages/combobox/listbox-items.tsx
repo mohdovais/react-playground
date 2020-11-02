@@ -14,7 +14,7 @@ import {
     ListBoxProps,
 } from 'Combobox';
 import { emptyFn } from '../utils/function';
-import { KEY_ARROW_DOWN, KEY_ARROW_UP, KEY_ENTER } from './constant';
+import { KEY_ARROW_DOWN, KEY_ARROW_UP, KEY_ENTER } from '../constant';
 
 function scrollIntoView(el: HTMLElement | null, smooth = true) {
     if (el == null) return;
@@ -68,28 +68,29 @@ export function ListBoxItems(props: ListBoxProps<Json>) {
 
     const OptionRenderer = itemRenderer;
 
-    const [focusIndex, disptachKeyboard] = useReducer(function (
-        index: number,
-        action: string
-    ) {
-        let _index = index;
-        switch (action) {
-            case KEY_ARROW_UP:
-                _index = index === -1 ? totalItems - 1 : index - 1;
-                break;
-            case KEY_ARROW_DOWN:
-                _index = index === -1 ? 0 : index + 1;
-        }
-        return _index === index
-            ? index
-            : totalItems === 0
-            ? -1
-            : (totalItems + _index) % totalItems;
-    },
-    firstSelectedIndex);
+    const [focusIndex, disptachKeyboard] = useReducer(
+        function (index: number, action: string) {
+            let _index = index;
+            switch (action) {
+                case KEY_ARROW_UP:
+                    _index = index === -1 ? totalItems - 1 : index - 1;
+                    break;
+                case KEY_ARROW_DOWN:
+                    _index = index === -1 ? 0 : index + 1;
+            }
+            return _index === index
+                ? index
+                : totalItems === 0
+                ? -1
+                : (totalItems + _index) % totalItems;
+        },
+        key === '' ? -1 : firstSelectedIndex
+    );
 
     if (key === KEY_ENTER && focusIndex !== -1) {
-        onSelect(data[focusIndex]);
+        setTimeout(() => {
+            onSelect(data[focusIndex]);
+        }, 0);
     }
 
     useEffect(() => {

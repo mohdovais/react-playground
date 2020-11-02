@@ -11,7 +11,7 @@ import {
     ACTION_TYPE_SET_WAITING,
     ACTION_TYPE_SET_ACTIVE_DECENDENT,
 } from './combobox.store';
-import { KEY_ARROW_DOWN, KEY_ARROW_UP, KEY_ENTER } from './constant';
+import { KEY_ARROW_DOWN, KEY_ARROW_UP, KEY_ENTER } from '../constant';
 import { ComboboxAction } from 'Combobox';
 
 export function useComboboxActions<Json>(

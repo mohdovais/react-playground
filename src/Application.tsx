@@ -2,6 +2,8 @@ import * as React from 'react';
 import { useState, useEffect, useCallback } from '../packages/utils/react';
 import Combobox from '../packages/combobox';
 import OptionCountry from './option-country';
+import SimpleCombobox, { Option } from '../packages/comobobox-simple';
+import { OptGroup } from '../packages/comobobox-simple/combobox';
 
 type Language = {
     code: string;
@@ -26,7 +28,6 @@ export type Country = {
 
 export function Application() {
     const [countries, setCountries] = useState<Country[]>([]);
-    const [remoteData, setRemoteData] = useState([]);
 
     useEffect(() => {
         fetch('data/countries.json')
@@ -49,22 +50,26 @@ export function Application() {
         [countries]
     );
 
+    const regions = countries.reduce(function (accum, country) {
+        const region = country.region;
+        if (!accum[region]) {
+            accum[region] = [];
+        }
+        accum[region].push(country);
+        return accum;
+    }, {});
+
     return (
         <div>
-            <h5>Normal</h5>
-            <Combobox data={countries} displayField="name" />
-            <h5>Read Only</h5>
-            <Combobox readOnly data={countries} displayField="name" />
-            <h5>Disabled</h5>
-            <Combobox disabled data={countries} displayField="name" />
-            <h5>Search</h5>
-            <Combobox
-                displayField="name"
-                queryMode="remote"
-                onRemoteQuery={remoteQuery}
-                optionRenderer={OptionCountry}
-                hideTrigger
-            />
+            <SimpleCombobox onChange={console.log}>
+                {Object.keys(regions).map((region) => (
+                    <OptGroup key={region} label={region}>
+                        {regions[region].map((country) => (
+                            <Option key={country.code}>{country.name}</Option>
+                        ))}
+                    </OptGroup>
+                ))}
+            </SimpleCombobox>
         </div>
     );
 }

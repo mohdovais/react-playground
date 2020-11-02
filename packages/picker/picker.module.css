@@ -1,0 +1,31 @@
+.reaper {
+    display: inline-block;
+}
+
+.input {
+    padding-right: 21px;
+}
+
+.picker_container {
+    position: relative;
+}
+
+.picker {
+    overflow: auto;
+    z-index: 1;
+    background-color: #fff;
+    box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14),
+        0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2);
+}
+
+.trigger {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    padding: 2px;
+    box-sizing: border-box;
+    border-left: 1px solid rgb(118, 118, 118);
+    cursor: pointer;
+}
