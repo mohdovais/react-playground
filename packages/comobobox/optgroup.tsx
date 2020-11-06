@@ -1,4 +1,4 @@
-import React, { memo, Children, isValidElement } from '../utils/react';
+import React, { memo, Children, isValidElement, useMemo } from '../utils/react';
 import { OptGroupContext } from './context';
 import Option from './option';
 import {
@@ -7,26 +7,34 @@ import {
 } from './style.module.css';
 
 export interface OptGroupProps {
+    className?: string;
+    style?: React.CSSProperties;
     disabled?: boolean;
     label: string;
     children: any;
 }
 
 function OptGroup(props: OptGroupProps) {
-    const { label, disabled = false } = props;
-    const children = Children.toArray(props.children).filter(
-        (child: React.ReactNode) =>
-            isValidElement(child) && child.type === Option
+    const { className = '', style, label, disabled = false } = props;
+    const children = useMemo(
+        () =>
+            Children.toArray(props.children).filter(
+                (child: React.ReactNode) =>
+                    isValidElement(child) && child.type === Option
+            ),
+        [props.children]
     );
+
     return (
-        <li className={$option_group}>
-            <label className={$option_group_label}>{label}</label>
+        <li className={$option_group + ' ' + className} style={style}>
+            <label
+                className={$option_group_label + (disabled ? ' disabled' : '')}>
+                {label}
+            </label>
             {children.length > 0 ? (
-                <ul>
-                    <OptGroupContext.Provider value={{ disabled }}>
-                        {children}
-                    </OptGroupContext.Provider>
-                </ul>
+                <OptGroupContext.Provider value={{ disabled }}>
+                    <ul>{children}</ul>
+                </OptGroupContext.Provider>
             ) : null}
         </li>
     );

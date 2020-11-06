@@ -11,7 +11,7 @@ function getPosition(el: HTMLElement | null, pre = none): React.CSSProperties {
     const viewportHeight = win.innerHeight;
     const viewportWidth = win.innerWidth;
 
-    const { top, left, bottom, height } = el.getBoundingClientRect();
+    const { top, left, bottom, height, width } = el.getBoundingClientRect();
 
     if (top < 0 || top > viewportHeight || left < 0 || left > viewportWidth) {
         return pre;
@@ -23,6 +23,7 @@ function getPosition(el: HTMLElement | null, pre = none): React.CSSProperties {
     let style: React.CSSProperties = {
         position: 'absolute',
         width: 'max-content',
+        minWidth: width,
     };
 
     if (top < bottomSpace) {

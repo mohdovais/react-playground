@@ -8,12 +8,12 @@ export type Key = {
 
 type Context = {
     keyDown: Key | null;
-    setValue: (value: string) => void;
+    onChange: (value: string) => void;
 };
 
 const context: Context = {
     keyDown: null,
-    setValue: (value: string) => {},
+    onChange: (value: string) => {},
 };
 
 export default createContext(context);

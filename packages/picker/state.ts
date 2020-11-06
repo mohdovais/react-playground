@@ -72,7 +72,14 @@ export function usePickerState({ multiple }) {
 
     const { expanded, value, keyDown, activeDescendant } = state;
 
-    const setValue = useCallback(
+    const expand = useCallback(
+        (expand = true) => {
+            disptach({ type: ACTION_SET_EXPANDED, expand });
+        },
+        [disptach]
+    );
+
+    const onChange = useCallback(
         (value: string) => {
             disptach({
                 type: ACTION_SET_VALUE,
@@ -83,7 +90,7 @@ export function usePickerState({ multiple }) {
         [disptach]
     );
 
-    const context = useMemo(() => ({ setValue, keyDown }), [keyDown]);
+    const context = useMemo(() => ({ onChange, keyDown }), [keyDown]);
 
     const handleKeyDown = useCallback(function (event: React.KeyboardEvent) {
         const { key, ctrlKey, metaKey, shiftKey } = event;
@@ -105,5 +112,5 @@ export function usePickerState({ multiple }) {
         }
     }, []);
 
-    return { expanded, value, activeDescendant, context, handleKeyDown };
+    return { expanded, value, activeDescendant, context, expand, handleKeyDown };
 }

@@ -1,6 +1,11 @@
 import * as React from 'react';
 import { useState, useEffect, useCallback } from '../packages/utils/react';
 import Combobox, { Option, OptGroup } from '../packages/comobobox';
+import {
+    combobox as $combobox,
+    optgroup as $optgroup,
+    option as $option,
+} from './Application.module.css';
 
 type Language = {
     code: string;
@@ -58,14 +63,37 @@ export function Application() {
 
     return (
         <div>
-            <Combobox onChange={console.log}>
+            <Combobox onChange={console.log} className={$combobox}>
                 {Object.keys(regions).map((region) => (
-                    <OptGroup key={region} label={region}>
+                    <OptGroup
+                        key={region}
+                        label={region}
+                        disabled={region === 'EU'}
+                        className={$optgroup}>
                         {regions[region].map((country) => (
-                            <Option key={country.code}>{country.name}</Option>
+                            <Option
+                                key={country.code}
+                                value={country.code}
+                                selected={
+                                    country.name === 'India' ||
+                                    country.name === 'Pakistan'
+                                }
+                                className={$option}>
+                                {country.name}
+                            </Option>
                         ))}
                     </OptGroup>
                 ))}
+            </Combobox>
+            -<Combobox onChange={console.log} className={$combobox}></Combobox>-
+            <Combobox onChange={console.log} className={$combobox}>
+                <Option value="IN">India</Option>
+            </Combobox>
+            -
+            <Combobox onChange={console.log} className={$combobox}>
+                <Option value="IN">
+                    In<span>d</span>ia
+                </Option>
             </Combobox>
         </div>
     );

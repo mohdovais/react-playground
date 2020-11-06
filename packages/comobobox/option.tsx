@@ -1,31 +1,41 @@
 import React, { useRef, useContext, memo } from '../utils/react';
-import { OptGroupContext } from './context';
+import { DropdownContext, OptGroupContext } from './context';
 import { option as $option } from './style.module.css';
 
 export interface OptionProps {
+    className?: string;
+    style?: React.CSSProperties;
     disabled?: boolean;
     selected?: boolean;
-    value?: any;
-    children: React.ReactElement | string | number;
+    value: any;
+    children: React.ReactChild | React.ReactChild[];
 }
 
 function Option(props: OptionProps) {
+    const {
+        value,
+        children,
+        disabled = false,
+        selected = false,
+        className = '',
+        style,
+    } = props;
     const ref = useRef<HTMLLIElement>(null);
-    const { disabled: disabledGroup } = useContext(OptGroupContext);
-    const { value, children, disabled = false, selected = false } = props;
-    const isDisabled = disabledGroup || disabled;
-    const clickHandler = () => {
-        const current = ref.current;
-        const _value =
-            value === undefined ? current && current.innerText : value;
-        console.log(_value);
-    };
+    const { onClick } = useContext(DropdownContext);
+    const isDisabled = useContext(OptGroupContext).disabled || disabled;
 
     return (
         <li
-            className={$option}
+            className={
+                $option +
+                ' ' +
+                className +
+                (isDisabled ? ' disabled' : '') +
+                (selected ? ' selected' : '')
+            }
+            style={style}
             ref={ref}
-            onClick={isDisabled ? undefined : clickHandler}>
+            onClick={isDisabled ? undefined : () => onClick(value)}>
             {children}
         </li>
     );

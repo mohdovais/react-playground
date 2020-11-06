@@ -1,38 +1,55 @@
-import React, {
-    memo,
-    useContext,
-    Children,
-    isValidElement,
-} from '../utils/react';
+import React, { memo, useContext, useMemo, useState } from '../utils/react';
 import Picker, { PickerContext, PickerProps } from '../picker';
-import OptGroup from './optgroup';
-import Option from './option';
+import { DropdownContext } from './context';
+import { getChildrenValue, validateChildren } from './helper';
 import { listbox as $listbox } from './style.module.css';
+import { useEffect } from 'react';
 
 type DropDownProps = {
     children: any;
+    multiple?: boolean;
 };
 
-export interface ComboboxProps extends PickerProps {}
+export interface ComboboxProps extends PickerProps {
+    children?: React.ReactElement | React.ReactElement[];
+}
 
 const DropDown = memo(function DropDown(props: DropDownProps) {
-    const { key } = useContext(PickerContext);
-    console.log(key);
+    const { keyDown, onChange } = useContext(PickerContext);
+    const { children, multiple = false } = props;
+    const single = !multiple;
 
-    const children = Children.toArray(props.children).filter(
-        (child: React.ReactNode) =>
-            isValidElement(child) &&
-            (child.type === Option || child.type === OptGroup)
+    const context = useMemo(() => ({ onClick: onChange }), [onChange]);
+
+    return (
+        <ul className={$listbox}>
+            <DropdownContext.Provider value={context}>
+                {children}
+            </DropdownContext.Provider>
+        </ul>
     );
-    // const listeners = useMemo(() => ({ onClick }), [onClick]);
-    return <ul className={$listbox}>{children}</ul>;
 });
 
 function Combobox(props: ComboboxProps) {
     const { className = '', children, ...restProps } = props;
+    const singleSelection = !props.multiple;
+    const validChildren = useMemo(() => validateChildren(children), [children]);
+    const values = useMemo(() => getChildrenValue(validChildren), [
+        validChildren,
+    ]);
+    const [value, setValue] = useState(props.value);
+
+    useEffect(() => {
+        if (singleSelection) {
+            setValue(values[0]);
+            // modify tree
+        }
+    }, [singleSelection, values]);
+
+    console.log(value);
     return (
         <Picker {...restProps} className={'combobox ' + className}>
-            <DropDown>{children}</DropDown>
+            <DropDown multiple={props.multiple}>{validChildren}</DropDown>
         </Picker>
     );
 }

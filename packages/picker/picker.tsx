@@ -25,9 +25,11 @@ export interface PickerProps {
     readOnly?: boolean;
     placeholder?: string;
     children?: React.ReactElement;
-    onChange?: CallableFunction;
     triggerIcon?: any;
+    hideTrigger?: boolean;
     onInput?: (event: React.FormEvent<HTMLInputElement>) => void;
+    onChange?: CallableFunction;
+    value?: string;
 }
 
 const TriggerIcon = memo(function TriggerIcon() {
@@ -62,6 +64,7 @@ function Picker(props: PickerProps) {
         role = 'combobox',
         style,
         triggerIcon = <TriggerIcon />,
+        hideTrigger,
     } = props;
 
     const ref = useRef<HTMLDivElement>(null);
@@ -71,6 +74,7 @@ function Picker(props: PickerProps) {
         value,
         activeDescendant,
         context,
+        expand,
         handleKeyDown,
     } = usePickerState({ multiple });
 
@@ -78,6 +82,14 @@ function Picker(props: PickerProps) {
     const componentId = id === undefined ? randomId : id;
     const pickerId = componentId + '-picker';
     const pickerStyle = usePickerPosition(ref, expanded);
+
+    const triggerHandler =
+        disabled || hideTrigger
+            ? undefined
+            : () => {
+                  expand(!expanded);
+                  inputRef?.current?.focus();
+              };
 
     useEffect(() => {
         if (autofocus) {
@@ -104,7 +116,7 @@ function Picker(props: PickerProps) {
                         aria-controls={pickerId}
                         aria-activedescendant={activeDescendant}
                         onKeyDown={handleKeyDown}
-                        onInput={onInput}
+                        onChange={onInput}
                         ref={inputRef}
                         disabled={disabled}
                         readOnly={readOnly}
@@ -113,21 +125,16 @@ function Picker(props: PickerProps) {
                         required={required}
                         value={value}
                     />
-                    <div
-                        tabIndex={-1}
-                        role="button"
-                        aria-label="Show picker"
-                        className={$trigger}
-                        onClick={
-                            disabled
-                                ? undefined
-                                : () => {
-                                      setExpanded(!expanded);
-                                      inputRef?.current?.focus();
-                                  }
-                        }>
-                        {triggerIcon}
-                    </div>
+                    {hideTrigger ? null : (
+                        <div
+                            tabIndex={-1}
+                            role="button"
+                            aria-label="Show picker"
+                            className={$trigger}
+                            onClick={triggerHandler}>
+                            {triggerIcon}
+                        </div>
+                    )}
                 </div>
                 <div id={pickerId} className={$picker} style={pickerStyle}>
                     {expanded ? (

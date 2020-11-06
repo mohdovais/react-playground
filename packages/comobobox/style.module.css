@@ -33,10 +33,6 @@
     list-style: none;
 }
 
-.option {
-    cursor: pointer;
-}
-
 .option + .option {
     border-top: 1px solid #ccc;
 }

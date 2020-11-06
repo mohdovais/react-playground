@@ -11,6 +11,8 @@ import { generateScopedName } from './scripts/css-module-scoped-name';
 const production = !process.env.ROLLUP_WATCH;
 const environment = production ? 'production' : 'development';
 
+let cache;
+
 export default [
     {
         input: 'src/app.tsx',
@@ -19,6 +21,7 @@ export default [
             format: 'esm',
             sourcemap: true,
         },
+        cache,
         manualChunks(id) {
             if (id.includes('node_modules')) {
                 return 'vendor';
